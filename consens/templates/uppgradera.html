@@ -1,0 +1,17 @@
+{% extends "bas.html" %}
+{% block titel %}Fortsätt med Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida">
+  <h1>Provperioden är slut</h1>
+  <p>Hoppas Consens hann visa vad tjänsten går för. För att fortsätta
+  uppgraderar du kontot: 14 dagar gratis till att börja med, därefter
+  595 kr per användare och månad inklusive moms. Inga bindningstider,
+  avsluta när som helst.</p>
+  <form method="post" action="{{ url_for('betalning.checkout') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="knapp-primar" type="submit">Uppgradera kontot</button>
+  </form>
+  <p class="liten">Hellre faktura, eller frågor om priset? Mejla
+  <a href="mailto:hej@consens.se">hej@consens.se</a> så löser vi det.</p>
+</main>
+{% endblock %}

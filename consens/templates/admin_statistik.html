@@ -1,0 +1,71 @@
+{% extends "admin_bas.html" %}
+{% block titel %}Consens — Admin · Statistik{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <div class="sidhuvud" style="padding:0">
+    <h1>Statistik</h1>
+
+<nav class="flikrad">
+  <a href="?flik=publik" class="flik {% if flik == 'publik' %}aktiv{% endif %}">Startsida</a>
+  <a href="?flik=inloggade" class="flik {% if flik != 'publik' %}aktiv{% endif %}">Inloggade användare</a>
+</nav>
+
+{% if flik == 'publik' %}
+<section class="panel">
+  <div class="statrad">
+    <div class="stat"><div class="tal">{{ "{:,}".format(publik.totalt).replace(",", " ") }}</div><div class="etikett">sidvisningar, {{ dagar }} dagar</div></div>
+    <div class="stat"><div class="tal">{{ publik.snitt_dag }}</div><div class="etikett">visningar per dag i snitt</div></div>
+    <div class="stat"><div class="tal">{{ publik.per_sida|length }}</div><div class="etikett">olika sidor besökta</div></div>
+  </div>
+
+  <h2>Mest besökta sidor <span class="antal-h">senaste {{ dagar }} dagarna</span></h2>
+  {% for r in publik.per_sida %}
+  <div class="admin-rad"><b>{{ r.antal }}</b><span>{{ r.sokvag }}</span>
+    <span class="info">{{ (100 * r.antal / publik.totalt)|round(0)|int if publik.totalt else 0 }} % av visningarna</span></div>
+  {% else %}<p class="tomt">Inga besök loggade ännu.</p>{% endfor %}
+
+  <h2>Visningar per dag</h2>
+  {% for r in publik.per_dag %}
+  <div class="admin-rad"><b>{{ r.antal }}</b><span>{{ r.dag }}</span></div>
+  {% else %}<p class="tomt">Inga besök loggade ännu.</p>{% endfor %}
+  <p class="liten">Utloggade besökares sidvisningar på de publika sidorna.
+  Mätningen är kakfri, därför visas inte sessionslängder eller unika
+  besökare.</p>
+</section>
+{% else %}
+    <form method="get" class="dagar-val">
+      {% for d in ('7','30','90') %}
+      <button name="dagar" value="{{ d }}" class="{% if dagar == d %}vald{% endif %}">{{ d }} dagar</button>
+      {% endfor %}
+    </form>
+  </div>
+
+  <h2>Mest klickade signaler <span class="antal-h">senaste {{ dagar }} dagarna</span></h2>
+  {% for r in mest_klickade %}
+  <div class="admin-rad"><b>{{ r.klick }}</b>
+    <span class="tagg {% if r.typ == 'avtalsutgang' %}tagg-utgang{% else %}tagg-upphandling{% endif %}">{{ signaltyper[r.typ] }}</span>
+    <span>{{ r.titel }}</span><span class="info">{{ r.org_namn }}</span></div>
+  {% else %}<p class="tomt">Inga klick loggade ännu.</p>{% endfor %}
+
+  <h2>Populäraste filterattributen <span class="antal-h">ur alla bevakningar</span></h2>
+  {% for namn, antal in populara_attribut %}
+  <div class="admin-rad"><b>{{ antal }}</b><span>{{ namn }}</span></div>
+  {% else %}<p class="tomt">Inga bevakningar ännu.</p>{% endfor %}
+
+  <h2>Mest sparade signaler</h2>
+  {% for r in mest_sparade_signaler %}
+  <div class="admin-rad"><b>{{ r.antal }}</b><span>{{ r.titel }}</span><span class="info">{{ r.org_namn }}</span></div>
+  {% else %}<p class="tomt">Inget sparat ännu.</p>{% endfor %}
+
+  <h2>Mest sparade organisationer</h2>
+  {% for r in mest_sparade_org %}
+  <div class="admin-rad"><b>{{ r.antal }}</b><span>{{ r.namn }}</span></div>
+  {% else %}<p class="tomt">Inget sparat ännu.</p>{% endfor %}
+
+  <h2>Aktiva användare per roll</h2>
+  {% for r in per_roll %}
+  <div class="admin-rad"><b>{{ r.antal }}</b><span>{{ roller[r.roll] }}</span></div>
+  {% endfor %}
+</main>
+{% endif %}
+{% endblock %}

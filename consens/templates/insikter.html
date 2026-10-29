@@ -1,0 +1,69 @@
+{% extends "bas.html" %}
+{% block innehall %}
+<main class="sida">
+  <h1>Marknadsinsikter</h1>
+  <p class="ingress-sida">Konkurrensläge, leverantörskoncentration och
+  kommande avtalsutgångar per bransch, beräknat ur
+  tilldelningsbeslut och avtal i Consens databas. Låg konkurrens
+  betyder färre motståndare om affären: en öppning för dig.</p>
+
+  {% if stapel %}
+<section class="panel oversikt">
+  <h2>Konkurrensen bransch för bransch</h2>
+  <p class="liten">Genomsnittligt antal anbud per upphandling, sorterat
+  från svagast till hårdast konkurrens. Den streckade linjen är snittet
+  för alla branscher{% if rikssnitt %}, {{ ("%.1f"|format(rikssnitt))|replace(".", ",") }} anbud{% endif %}.
+  Färre anbud betyder färre motståndare om affären.</p>
+  <div class="stapelkarta" style="--riks:{{ riks_bredd }}%">
+    {% for b in stapel %}
+    <a class="stapelrad" href="#bransch-{{ loop.index }}"
+       title="{{ b.n }} tilldelningar i underlaget">
+      <span class="stapel-namn">{{ b.bransch }}</span>
+      <span class="stapel-spar">
+        <span class="stapel-fyll lage-{{ b.lage_klass }}" style="width:{{ b.bredd }}%"></span>
+      </span>
+      <span class="stapel-tal">{{ ("%.1f"|format(b.snitt_anbud))|replace(".", ",") }}</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% for b in branscher %}
+  <section class="panel insikt-kort">
+    <div class="insikt-topp">
+      <h2>{{ b.bransch }}</h2>
+      <span class="lage lage-{{ b.lage_klass }}">{{ b.lage }}</span>
+    </div>
+    <div class="statrad statrad-4">
+      <div class="stat"><div class="tal">{{ b.snitt_anbud if b.snitt_anbud is not none else "–" }}</div>
+        <div class="etikett">anbud per upphandling i snitt</div></div>
+      <div class="stat"><div class="tal">{{ b.andel_ett_anbud ~ " %" if b.andel_ett_anbud is not none else "–" }}</div>
+        <div class="etikett">avgörs med ett enda anbud</div></div>
+      <div class="stat"><div class="tal">{{ b.topp_andel ~ " %" if b.topp_andel is not none else "–" }}</div>
+        <div class="etikett">av kontraktsvärdet hos topp 5</div></div>
+      <div class="stat"><div class="tal">{{ b.utgar }}</div>
+        <div class="etikett">avtal löper ut inom 18 mån{% if b.utgar_orgar %} hos {{ b.utgar_orgar }} organisationer{% endif %}</div></div>
+    </div>
+    {% if b.topp %}
+    <h3 class="insikt-rubrik">Största leverantörerna (andel av kontraktsvärde)</h3>
+    {% for namn, andel in b.topp %}
+    <div class="inkop-rad">
+      <span class="inkop-namn"><a href="{{ url_for('leverantorer.lista') }}?sok=1&amp;q={{ namn|urlencode }}">{{ namn }}</a></span>
+      <span class="inkop-belopp">{{ andel }} %</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+    <p class="liten">Underlag: {{ b.n }} tilldelningar/avtal{% if b.medellangd %} ·
+    medelavtalslängd {{ b.medellangd }} mån{% endif %} ·
+    <a class="rapportlank" href="{{ url_for('insikter.rapport', bransch=b.bransch) }}">⤓ Branschrapport (Word)</a> ·
+    <a href="{{ url_for('flode.flodet') }}?typ=avtalsutgang&bransch={{ b.bransch|urlencode }}">se utgångarna i flödet</a></p>
+  </section>
+  {% endfor %}
+
+  <p class="liten">Så sätts etiketterna: Låg konkurrens = under 3 anbud i
+  snitt eller minst 25 % enanbudsupphandlingar · Måttlig = under 4,5 ·
+  Hård = 4,5 eller fler. Anbudsantal ur TED:s tilldelningsbeslut;
+  branscher med under {{ min_underlag }} tilldelningar visas inte. Ramavtal med
+  flera leverantörer delas lika mellan bolagen i topplistan.</p>
+</main>
+{% endblock %}

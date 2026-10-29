@@ -1,0 +1,30 @@
+{% extends "admin_bas.html" %}
+{% block titel %}Consens — Admin · Kontoförfrågningar{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <h1>Kontoförfrågningar <span class="antal-h">{{ lista|length }} st</span></h1>
+  <p class="sektion-ingress">Ansökningar från formuläret på consens.se. Skapa kontot under Användare, mejla inloggningen, och markera som hanterad.</p>
+  {% for f in lista %}
+  <div class="bev-kort {% if f.status != 'ny' %}inaktiv{% endif %}">
+    <div class="bev-topp">
+      <span class="bev-namn">{{ f.namn }}</span>
+      <span class="info">{{ f.epost }}{% if f.foretag %} · {{ f.foretag }}{% endif %}</span>
+      <span class="tagg {% if f.status == 'ny' %}tagg-prio{% elif f.status == 'hanterad' %}tagg-upphandling{% else %}tagg-utgang{% endif %}">{{ f.status }}</span>
+      <div class="hoger">
+        <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <input type="hidden" name="fid" value="{{ f.id }}">
+          {% if f.status == 'ny' %}
+          <button name="status" value="hanterad" class="knapp-sekundar liten-knapp">Markera hanterad</button>
+          <button name="status" value="avvisad" class="tabort">Avvisa</button>
+          {% else %}
+          <button name="status" value="ny" class="tabort">Återöppna</button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+    {% if f.meddelande %}<p class="sammanfattning">{{ f.meddelande }}</p>{% endif %}
+    <p class="info">Inkom {{ f.skapad }}</p>
+  </div>
+  {% else %}<p class="tomt">Inga förfrågningar ännu.</p>{% endfor %}
+</main>
+{% endblock %}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="sv" data-tema="{{ request.cookies.get('tema') or ('mork' if g.anvandare and g.anvandare['mork_lage'] else 'ljus') }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titel %}Consens{% endblock %}</title>
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='consens.css') }}?v={{ css_v }}">
+  <script src="https://molnet.digital/track.js" data-site="consens" defer></script>
+</head>
+<body>
+
+<header class="topnav">
+  <a class="wordmark" href="{{ url_for('flode.flodet') }}">consens<span class="dot">.</span></a>
+  <nav class="huvudnav">
+    <a href="{{ url_for('flode.flodet') }}" {% if request.endpoint == 'flode.flodet' %}class="aktiv"{% endif %}>Flödet</a>
+    <a href="{{ url_for('flode.bevakningar') }}" {% if request.endpoint == 'flode.bevakningar' %}class="aktiv"{% endif %}>Bevakningar</a>
+    <a href="{{ url_for('flode.avtalslista') }}" {% if request.endpoint == 'flode.avtalslista' %}class="aktiv"{% endif %}>Avtal</a>
+    <a href="{{ url_for('insikter.insikter') }}" {% if request.endpoint == 'insikter.insikter' %}class="aktiv"{% endif %}>Insikter</a>
+    <a href="{{ url_for('flode.organisationer') }}" {% if request.endpoint in ('flode.organisationer','flode.organisation','flode.organisation_id') %}class="aktiv"{% endif %}>Organisationer</a>
+    <a href="{{ url_for('leverantorer.lista') }}" {% if request.endpoint and request.endpoint.startswith('leverantorer.') %}class="aktiv"{% endif %}>Leverantörer</a>
+    {% if g.anvandare and g.anvandare["roll"] == "admin" %}<a href="{{ url_for('admin.oversikt') }}" {% if request.endpoint and request.endpoint.startswith('admin.') %}class="aktiv"{% endif %}>Admin</a>{% endif %}
+    <a href="{{ url_for('auth.kontakt') }}" {% if request.endpoint == 'auth.kontakt' %}class="aktiv"{% endif %}>Kontakt</a>
+    <a href="{{ url_for('auth.installningar') }}" class="nav-ikon {% if request.endpoint == 'auth.installningar' %}aktiv{% endif %}" aria-label="Inställningar" title="Inställningar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.03-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.01A1.7 1.7 0 0 0 10.05 3V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.01c.26.62.86 1.03 1.53 1.03H21a2 2 0 1 1 0 4h-.09c-.67 0-1.27.4-1.51 1.02z"/></svg></a>
+  </nav>
+  <span class="user">{% if g.anvandare %}
+    <span class="anv-namn"><b>{{ g.anvandare["namn"] or g.anvandare["epost"] }}</b>
+      {% if g.anvandare["foretag"] %}<span class="anv-foretag">{{ g.anvandare["foretag"] }}</span>{% endif %}</span>
+    <a href="{{ url_for('auth.logga_ut') }}" class="knapp-primar">Logga ut</a>
+  {% endif %}</span>
+</header>
+{% with meddelanden = get_flashed_messages() %}
+  {% if meddelanden %}<div class="flash-rad">{% for m in meddelanden %}<p class="info-ruta">{{ m }}</p>{% endfor %}</div>{% endif %}
+{% endwith %}
+
+{% block innehall %}{% endblock %}
+
+<footer class="sidfot">
+  <div class="sidfot-kolumner">
+    <div class="sidfot-kol sidfot-om">
+      <span class="fm">consens<span class="dot">.</span></span>
+      <p>Bevakning av upphandlingar och avtalsutgångar i offentlig sektor.</p>
+      <p class="sidfot-kontakt">
+        Nodtech AB · Org.nr 559599-1752<br>
+        <a href="mailto:info@consens.se">info@consens.se</a>
+      </p>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Tjänsten</h3>
+      <a href="/sok">Sök upphandlingar</a>
+      <a href="/produkt">Produkt</a>
+      <a href="/faq">Vanliga frågor</a>
+      <a href="/testa">Testa gratis i 14 dagar</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Juridik &amp; villkor</h3>
+      <a href="/integritetspolicy">Integritetspolicy</a>
+      <a href="/integritetspolicy">Behandling av personuppgifter (GDPR)</a>
+      <a href="/villkor">Användarvillkor</a>
+      <a href="mailto:info@consens.se">Registerutdrag &amp; radering</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Källor</h3>
+      <p class="sidfot-kallor">TED, KommersAnnons och e-Avrop samt
+      inköpscentralernas avtalskataloger (Adda, Statens
+      inköpscentral, HBV, Sinfra). Fler källor ansluts löpande.</p>
+    </div>
+  </div>
+  <div class="sidfot-botten">© 2026 Nodtech AB · Org.nr 559599-1752 · consens.se</div>
+</footer>
+
+<script src="{{ url_for('static', filename='consens.js') }}"></script>
+
+{% if g.anvandare and not g.anvandare["tur_visad"] %}
+<div id="tur-overlagg" hidden>
+  <div class="tur-bubbla" role="dialog" aria-live="polite">
+    <p class="tur-text"></p>
+    <div class="tur-knappar">
+      <button type="button" class="tur-hoppa">Hoppa över</button>
+      <span class="tur-steg"></span>
+      <button type="button" class="tur-nasta knapp-primar">Nästa</button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var steg = [
+    {url: "/flode", val: "a[href='/flode']",
+     text: "I Flödet samlas alla nya upphandlingar och avtalsutgångar, sorterade med det färskaste överst."},
+    {url: "/organisationer", val: "a[href='/organisationer']",
+     text: "Under Organisationer hittar du varje kommun, region och myndighet med deras upphandlingar och avtal."},
+    {url: "/avtal", val: "a[href='/avtal']",
+     text: "Avtal listar alla kända kontrakt, de som snart går ut lyfts överst, så du kan ligga steget före."},
+    {url: "/bevakningar", val: "a[href='/bevakningar']",
+     text: "Under Bevakningar samlas dina sparade urval, och vi mejlar dig när nya träffar dyker upp."},
+    {url: "/flode", val: ".filterrad", under: true,
+     text: "Testa nu: ställ in vad du vill se och tryck Tillämpa. Gillar du urvalet kan du spara det som en bevakning."}
+  ];
+  var i = parseInt(sessionStorage.getItem("turSteg") || "0", 10);
+  if (i >= steg.length) { avsluta(); return; }
+  var st = steg[i];
+  if (location.pathname !== st.url) { location = st.url; return; }
+  var mal = document.querySelector(st.val.indexOf(".") === 0 ? st.val : ".huvudnav " + st.val);
+  if (!mal) return;
+  var ol = document.getElementById("tur-overlagg"),
+      bub = ol.querySelector(".tur-bubbla"), topnav = document.querySelector(".topnav");
+  function avsluta() {
+    sessionStorage.removeItem("turSteg");
+    fetch("/tur-klar", {method: "POST"});
+    if (topnav) topnav.style.zIndex = "";
+    mal && mal.classList.remove("tur-mal");
+    ol && (ol.hidden = true);
+  }
+  function visa() {
+    if (topnav) topnav.style.zIndex = "905";
+    mal.classList.add("tur-mal");
+    ol.querySelector(".tur-text").textContent = st.text;
+    ol.querySelector(".tur-steg").textContent = (i + 1) + " av " + steg.length;
+    ol.querySelector(".tur-nasta").textContent = (i === steg.length - 1) ? "Klar" : "Nästa";
+    var r = mal.getBoundingClientRect();
+    bub.style.top = (r.bottom + 14) + "px";
+    bub.style.left = Math.max(12, Math.min(r.left + (st.under ? 24 : r.width / 2 - 160),
+                                           innerWidth - 332)) + "px";
+  }
+  ol.querySelector(".tur-nasta").onclick = function () {
+    if (i === steg.length - 1) { avsluta(); return; }
+    sessionStorage.setItem("turSteg", String(i + 1));
+    location = steg[i + 1].url;
+  };
+  ol.querySelector(".tur-hoppa").onclick = avsluta;
+  addEventListener("resize", function () { if (!ol.hidden) visa(); });
+  ol.hidden = false; visa();
+})();
+</script>
+{% endif %}
+</body>
+</html>
+
+{% macro loptidsmatare(start, slut, man_kvar, procent) %}
+{% if slut %}
+<div class="loptid {% if man_kvar is none %}{% elif man_kvar < 0 %}utgangen{% elif man_kvar <= 2 %}akut{% elif man_kvar <= 6 %}snart{% elif man_kvar <= 18 %}medel{% else %}lugn{% endif %}">
+  <div class="loptid-rad">
+    <span>{% if start %}Start {{ start }}{% else %}{{ slut }}{% endif %}</span>
+    <span class="kvar">{% if man_kvar is not none and man_kvar < 0 %}Löpte ut {{ slut }}{% else %}{% if man_kvar is not none %}{{ man_kvar }} mån kvar · {% endif %}löper ut {{ slut }}{% endif %}</span>
+  </div>
+  <div class="loptid-bar"><div class="loptid-fyll" style="width:{{ procent }}%"></div></div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro vardetext(varde, sort) %}
+{%- if varde -%}
+  {{ "{:,.1f}".format(varde / 1000000).replace(",", " ").replace(".", ",") }} mnkr
+  {%- if sort == 'anbud' %} (faktiskt anbud)
+  {%- elif sort == 'ramavtalstak' %} (ramavtalstak)
+  {%- elif sort == 'uppskattning' %} (uppskattning)
+  {%- endif -%}
+{%- else -%}—{%- endif -%}
+{% endmacro %}
+
+{% macro yrkespanel(yrkeskategorier, valda) %}
+<details class="multiselect">
+  <summary class="ms-toggle {% if valda %}aktiv{% endif %}">Tjänst
+    {% if valda %}<span class="antal">{{ valda|length }}</span>{% endif %}
+    <span class="pil">▾</span></summary>
+  <div class="ms-panel ms-bred">
+    <input class="ms-sok" type="search" placeholder="Sök tjänst…" aria-label="Sök tjänst">
+    <div class="lista">
+      {% for kategori, yrken in yrkeskategorier.items() %}
+      {% set gid = loop.index %}
+      {% set antal_valda = yrken|select("in", valda)|list|length %}
+      <details class="ms-grupp" {% if antal_valda %}open{% endif %}>
+        <summary class="ms-grupp-rad">
+          <input type="checkbox" class="grupp-val" data-grupp="{{ gid }}">
+          <span class="ms-grupp-namn">{{ kategori }}</span>
+          <span class="ms-grupp-antal">{% if antal_valda %}{{ antal_valda }} valda{% endif %}</span>
+          <span class="pil">▾</span>
+        </summary>
+        <div class="ms-grupp-barn">
+          {% for yrke in yrken %}
+          <label class="ms-indrag"><input type="checkbox" name="yrke" value="{{ yrke }}"
+            data-grupp-id="{{ gid }}" {% if yrke in valda %}checked{% endif %}> {{ yrke }}</label>
+          {% endfor %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </div>
+</details>
+{% endmacro %}

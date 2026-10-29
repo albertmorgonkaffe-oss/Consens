@@ -1,0 +1,14 @@
+[Unit]
+Description=Consens (gunicorn)
+After=network.target
+
+[Service]
+User=consens
+Group=consens
+WorkingDirectory=/opt/consens
+Environment="CONSENS_SECRET=BYT-MIG-TILL-NAGOT-LANGT"
+ExecStart=/opt/consens/venv/bin/gunicorn -w 2 -b 0.0.0.0:8100 'consens:create_app()'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

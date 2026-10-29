@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consens, logga in</title>
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='consens.css') }}?v={{ css_v }}">
+  <script src="https://molnet.digital/track.js" data-site="consens" defer></script>
+</head>
+<body>
+<header class="topnav">
+  <a class="wordmark" href="/">consens<span class="dot">.</span></a>
+</header>
+<main class="inloggning">
+  <h1>Logga in</h1>
+  {% with meddelanden = get_flashed_messages() %}
+    {% for m in meddelanden %}<p class="info-ruta">{{ m }}</p>{% endfor %}
+  {% endwith %}
+  {% if fel %}<p class="fel">{{ fel }}</p>{% endif %}
+  <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="epost">E-post</label>
+    <input type="email" id="epost" name="epost" required autofocus autocomplete="username">
+    <label for="losenord">Lösenord</label>
+    <input type="password" id="losenord" name="losenord" required autocomplete="current-password">
+    <button class="knapp-primar" type="submit">Logga in</button>
+  </form>
+  <p class="liten"><a href="{{ url_for('auth.glomt_losenord') }}">Glömt lösenordet?</a></p>
+  <p class="liten">Inget konto? <a href="mailto:hej@consens.se?subject=Konto%20p%C3%A5%20Consens">Hör av dig</a> så sätter vi upp ett samma dag.</p>
+</main>
+<footer class="sidfot">
+  <div class="sidfot-kolumner">
+    <div class="sidfot-kol sidfot-om">
+      <span class="fm">consens<span class="dot">.</span></span>
+      <p>Bevakning av upphandlingar och avtalsutgångar i offentlig sektor.</p>
+      <p class="sidfot-kontakt">
+        Nodtech AB · Org.nr 559599-1752<br>
+        <a href="mailto:info@consens.se">info@consens.se</a>
+      </p>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Tjänsten</h3>
+      <a href="/sok">Sök upphandlingar</a>
+      <a href="/produkt">Produkt</a>
+      <a href="/faq">Vanliga frågor</a>
+      <a href="/testa">Testa gratis i 14 dagar</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Juridik &amp; villkor</h3>
+      <a href="/integritetspolicy">Integritetspolicy</a>
+      <a href="/integritetspolicy">Behandling av personuppgifter (GDPR)</a>
+      <a href="/villkor">Användarvillkor</a>
+      <a href="mailto:info@consens.se">Registerutdrag &amp; radering</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Källor</h3>
+      <p class="sidfot-kallor">TED, KommersAnnons och e-Avrop samt
+      inköpscentralernas avtalskataloger (Adda, Statens
+      inköpscentral, HBV, Sinfra). Fler källor ansluts löpande.</p>
+    </div>
+  </div>
+  <div class="sidfot-botten">© 2026 Nodtech AB · Org.nr 559599-1752 · consens.se</div>
+</footer>
+</body>
+</html>

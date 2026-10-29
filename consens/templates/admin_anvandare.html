@@ -1,0 +1,87 @@
+{% extends "admin_bas.html" %}
+{% block titel %}Consens — Admin · Användare{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <h1>Användare <span class="antal-h">{{ lista|length }} st</span></h1>
+  {% if fel %}<p class="fel">{{ fel }}</p>{% endif %}
+
+  <h2>Skapa användare</h2>
+  <form method="post" action="{{ url_for('admin.bjud_in') }}" class="skapa-form panel bjudin-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <h2>Bjud in via e-post eller länk</h2>
+    <label>E-post<input type="email" name="epost" required placeholder="namn@foretag.se"></label>
+    <label>Behörighetsnivå
+      <select name="roll">
+        {% for v, namn in roller.items() %}<option value="{{ v }}" {% if v == 'anvandare' %}selected{% endif %}>{{ namn }}</option>{% endfor %}
+      </select></label>
+    <label>Tillgång i antal dagar (valfritt)
+      <input type="number" name="dagar" min="1" max="3650" placeholder="t.ex. 90"></label>
+    <button class="knapp-primar" type="submit">Skicka inbjudan</button>
+    <p class="liten">Länken mejlas och visas även här ovanför så du kan dela den själv. Gäller i 14 dagar.</p>
+  </form>
+
+  {% if vantande %}
+  <section class="panel vantande-inbjudningar">
+    <h2>Väntande inbjudningar <span class="antal-h">{{ vantande|length }} st</span></h2>
+    {% for i in vantande %}
+    <div class="inbjudan-rad">
+      <div class="inbjudan-info">
+        <b>{{ i.epost }}</b>
+        <span class="liten">{{ roller.get(i.roll, i.roll) }}
+          · skickad {{ i.skapad[:10] }}
+          {% if i.dagar_kvar > 0 %}· länken gäller {{ i.dagar_kvar }} dagar till
+          {% else %}· <span class="varning">länken har gått ut</span>{% endif %}
+          {% if i.giltig_till %}· kontotillgång t.o.m. {{ i.giltig_till }}{% endif %}</span>
+        <span class="inbjudan-lank liten">{{ request.url_root.rstrip('/') }}{{ url_for('auth.inbjudan', token=i.token) }}</span>
+      </div>
+      <form method="post" action="{{ url_for('admin.inbjudan_ta_bort', iid=i.id) }}"
+            onsubmit="return confirm('Makulera inbjudan till {{ i.epost }}?')"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button class="knapp-sekundar liten-knapp" type="submit">Makulera</button>
+      </form>
+    </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  <form method="post" class="skapa-form panel"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="atgard" value="skapa">
+    <input type="email" name="epost" placeholder="E-post" required>
+    <input type="text" name="namn" placeholder="Namn (valfritt)">
+    <select name="roll">
+      {% for varde, namn in roller.items() %}
+      <option value="{{ varde }}" {% if varde == 'anvandare' %}selected{% endif %}>{{ namn }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="losenord" placeholder="Lösenord" required>
+    <button class="knapp-primar liten-knapp" type="submit">Skapa</button>
+  </form>
+
+  {% for u in lista %}
+  <div class="anvandare-rad {% if not u.aktiv %}inaktiv{% endif %}">
+    <span class="anv-epost"><b><a href="{{ url_for('admin.anvandare_detalj', aid=u.id) }}">{{ u.epost }}</a></b>{% if u.namn %}<span class="info"> · {{ u.namn }}</span>{% endif %}
+      {% if u.roll == 'trial' and u.trial_start %}<span class="info"> · trial sedan {{ u.trial_start }}</span>{% endif %}</span>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="roll">
+      <input type="hidden" name="uid" value="{{ u.id }}">
+      <select name="roll" onchange="this.form.submit()">
+        {% for varde, namn in roller.items() %}
+        <option value="{{ varde }}" {% if u.roll == varde %}selected{% endif %}>{{ namn }}</option>
+        {% endfor %}
+      </select>
+    </form>
+    <span class="info">{{ u.bevakningar }} bevakningar · {{ u.sparade }} sparade</span>
+    <form method="post" title="Samtycke till marknadsföring"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="samtycke">
+      <input type="hidden" name="uid" value="{{ u.id }}">
+      <button class="samtycke {% if u.samtycke_marknadsforing %}ja{% endif %}">
+        {% if u.samtycke_marknadsforing %}✓ Samtycke{% else %}Ej samtycke{% endif %}</button>
+    </form>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="vaxla">
+      <input type="hidden" name="uid" value="{{ u.id }}">
+      <button class="vaxel {% if u.aktiv %}pa{% endif %}" role="switch"
+              aria-checked="{{ 'true' if u.aktiv else 'false' }}" aria-label="Aktiv"></button>
+    </form>
+  </div>
+  {% endfor %}
+</main>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "bas.html" %}
+{% block innehall %}
+<main class="sida smal">
+  <h1>Redigera organisation</h1>
+  <p class="liten"><a href="{{ url_for('flode.organisation_id', oid=org.id) }}">&larr; Tillbaka till {{ org.namn }}</a></p>
+  {% for f in fel %}<p class="fel">{{ f }}</p>{% endfor %}
+  <form method="post" class="panel skapa-form">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Namn
+      <input type="text" name="namn" value="{{ varden.namn or '' }}" required maxlength="200">
+    </label>
+    <label>Organisationsnummer <span class="liten">(kan lämnas tomt)</span>
+      <input type="text" name="orgnr" value="{{ varden.orgnr or '' }}" placeholder="212000-0159">
+    </label>
+    <label>Organisationstyp
+      <select name="kontotyp">
+        {% for k, namn in kontotyper.items() %}
+        <option value="{{ k }}" {% if varden.kontotyp == k %}selected{% endif %}>{{ namn }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Län
+      <select name="lan">
+        <option value="">(inget)</option>
+        {% for l in alla_lan %}
+        <option value="{{ l }}" {% if varden.lan == l %}selected{% endif %}>{{ l }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Webbplats
+      <input type="text" name="webbplats" value="{{ varden.webbplats or '' }}" placeholder="https://exempel.se">
+    </label>
+    <button type="submit" class="knapp">Spara</button>
+  </form>
+  <p class="liten">Ändringarna slår igenom direkt i flöde, listor och mejl.
+  Signaler och avtal följer med automatiskt (de pekar på organisationens
+  interna id, inte på namnet eller numret).</p>
+</main>
+{% endblock %}

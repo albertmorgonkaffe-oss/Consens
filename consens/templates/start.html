@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consens: se affären innan den blir en upphandling</title>
+<link rel="canonical" href="https://consens.se/">
+<meta property="og:site_name" content="Consens">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Consens: se affären innan den blir en upphandling">
+<meta property="og:description" content="Bevakning av upphandlingar, avtalsutgångar och planerade upphandlingar i offentlig sektor, ofta ett till tre år före annonsen.">
+<meta property="og:url" content="https://consens.se/">
+<meta property="og:locale" content="sv_SE">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@graph": [
+ {"@type": "Organization", "name": "Nodtech AB", "url": "https://consens.se",
+  "email": "info@consens.se",
+  "identifier": {"@type": "PropertyValue", "propertyID": "organisationsnummer", "value": "559599-1752"}},
+ {"@type": "SoftwareApplication", "name": "Consens",
+  "applicationCategory": "BusinessApplication", "operatingSystem": "Web",
+  "url": "https://consens.se",
+  "description": "Bevakningstjänst för offentliga upphandlingar, avtalsutgångar och planerade upphandlingar.",
+  "offers": {"@type": "Offer", "price": "595", "priceCurrency": "SEK"}}
+]}
+</script>
+<meta name="description" content="Consens bevakar politiska beslut, upphandlingsplaner, annonser, tilldelningar och avtalsutgångar hos kommuner, regioner, myndigheter och offentliga bolag. Ett pris på sidan, konto samma dag, ingen demo.">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='consens.css') }}?v={{ css_v }}">
+  <script src="https://molnet.digital/track.js" data-site="consens" defer></script>
+</head>
+<body>
+
+<header class="topnav">
+  <a class="wordmark" href="/">consens<span class="dot">.</span></a>
+  <nav class="huvudnav">
+    <a href="{{ url_for('publikt.sok') }}">Sök upphandlingar</a>
+    <a href="#signaler">Vad vi bevakar</a>
+    <a href="#jamfor">Jämför</a>
+    <a href="#pris">Pris</a>
+    <a href="/produkt">Produkt</a>
+    {% include "_nav_faq.html" %}
+  </nav>
+  <span class="user">
+    <span class="nav-avdelare" aria-hidden="true"></span>
+    <a href="{{ url_for('auth.logga_in') }}" class="knapp-sekundar">Logga in</a>
+    <a href="/testa" class="knapp-primar">Testa gratis i 14 dagar</a>
+  </span>
+</header>
+
+<main class="landning">
+
+  <section class="hero hero-tva">
+   <div class="hero-text">
+    <h1>Se affären<br>innan den blir en upphandling.</h1>
+    <p class="ingress">
+      De flesta bevakningstjänster börjar när annonsen publiceras. Då är
+      kravbilden redan spikad och alla ser samma sak samtidigt. Consens
+      börjar tidigare: vid det politiska beslutet, i kommunens budget, i
+      upphandlingsplanen och i avtalet som snart löper ut. Ofta ett till
+      tre år innan annonsen kommer.
+    </p>
+    <p class="malgrupp">
+      Byggt för alla som säljer till offentlig sektor. Bygg, IT, livsmedel,
+      vård, transport, städ eller konsulttjänster: branschen spelar
+      ingen roll.
+    </p>
+    <div class="chips hero-chips">
+      <span class="chip">Bygg och anläggning</span>
+      <span class="chip">IT och telekom</span>
+      <span class="chip">Livsmedel</span>
+      <span class="chip">Medicinteknik</span>
+      <span class="chip">Transport</span>
+      <span class="chip">Städ och FM</span>
+      <span class="chip">Vård och omsorg</span>
+      <span class="chip">+ 10 branscher till</span>
+    </div>
+    <div class="cta-rad">
+      <a class="knapp-primar" href="/testa">Testa gratis i 14 dagar</a>
+      <p class="cta-argument">Kom igång på två minuter.
+        <small>Inget säljsamtal, ingen demo. Kortet dras först efter 14 dagar
+        och du kan avsluta när som helst.</small></p>
+    </div>
+    <div class="trust-badges">
+      <span class="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
+        Byggd i Sverige</span>
+      <span class="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14 0 18M12 3c-3 3.5-3 14 0 18"/></svg>
+        Data inom EU</span>
+      <span class="trust-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M6 6l12 12"/></svg>
+        Inga kakor på publika sidor</span>
+    </div>
+   </div>
+
+   <div class="hero-glimt" id="glimthog">
+    <article class="glimt-kort" data-plats="0" data-typ="upphandling">
+      <div class="glimt-topp"><span class="tagg tagg-upphandling">Upphandling</span>
+        <span class="glimt-kalla">Källa: KommersAnnons</span><span class="glimt-datum">i dag</span></div>
+      <h3>Ramavtal IT-konsulttjänster</h3>
+      <p class="glimt-brod">Sista anbudsdag 2026-09-12. Uppskattat värde
+      24,0 mnkr. Fyra delområden, avrop under fyra år.</p>
+      <div class="chips glimt-chips"><span class="chip">IT och telekom</span>
+        <span class="chip">Systemutvecklare</span>
+        <span class="chip">Göteborgs Stad</span></div>
+    </article>
+    <article class="glimt-kort" data-plats="1" data-typ="avtalsutgang">
+      <div class="glimt-topp"><span class="tagg tagg-utgang">Avtalsutgång</span>
+        <span class="glimt-kalla">Beräknad ur tilldelningsdata</span></div>
+      <h3>Ramavtal städtjänster löper ut</h3>
+      <p class="glimt-brod">Avtalet beräknas löpa ut 2027-03-31, om cirka
+      8 månader. Nuvarande leverantör: Städbolaget Syd AB.
+      Värde: 18,5 mnkr.</p>
+      <div class="glimt-loptid">
+        <span class="glimt-start">Start 2023-04-01</span>
+        <span class="glimt-kvar">8 mån kvar</span>
+      </div>
+      <div class="glimt-bar"><div class="glimt-fyll"></div></div>
+      <div class="chips glimt-chips"><span class="chip">Städ och FM</span>
+        <span class="chip">Region Skåne</span></div>
+    </article>
+    <article class="glimt-kort" data-plats="2" data-typ="planerad">
+      <div class="glimt-topp"><span class="tagg tagg-planerad">Planerad upphandling</span>
+        <span class="glimt-kalla">Kommunens beslutsunderlag</span></div>
+      <h3>Nytt tillagningskök, genomförandebeslut</h3>
+      <p class="glimt-brod">Ärende 14 hos stadsdelsnämnden. Upptagen i
+      investeringsplanen med 38 mnkr. Upphandling väntas tidigast 2028.</p>
+      <div class="chips glimt-chips"><span class="chip">Bygg och anläggning</span>
+        <span class="chip">Stockholms stad</span></div>
+    </article>
+    <a class="glimt-hjalp" href="{{ url_for('publikt.sok') }}">Bläddra bland exempel <span class="pil" aria-hidden="true">→</span></a>
+   </div>
+    {% if stat and stat.upphandlingar > 100 %}
+    <div class="statrad hero-siffror">
+      <div class="stat"><div class="tal">{{ "{:,}".format(stat.upphandlingar).replace(",", " ") }}</div>
+        <div class="etikett">upphandlingar bevakade {{ 2026 }}</div></div>
+      <div class="stat"><div class="tal">{{ "{:,}".format(stat.utgangar).replace(",", " ") }}</div>
+        <div class="etikett">kommande avtalsutgångar</div></div>
+      <div class="stat"><div class="tal">{{ "{:,}".format(stat.organisationer).replace(",", " ") }}</div>
+        <div class="etikett">offentliga organisationer</div></div>
+      <div class="stat"><div class="tal">{{ senast_hamtad or "06:30" }}</div>
+        <div class="etikett">senaste hämtningen av nya poster</div></div>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="sektion" id="sa-funkar-det">
+    <h2>Så funkar det</h2>
+    <div class="signalgrid steg-grid">
+      <article class="signalkort steg">
+        <span class="stegnr">1</span>
+        <h3>Vi hämtar hela beslutskedjan</h3>
+        <p>Flera gånger varje dygn läser vi in nya upphandlingar,
+        tilldelningar och ramavtal ur de officiella annonsdatabaserna.
+        Varje vecka går vi dessutom igenom kommunernas och regionernas
+        egna beslutsunderlag, där affärerna syns långt innan de blir
+        annonser.</p>
+      </article>
+      <article class="signalkort steg">
+        <span class="stegnr">2</span>
+        <h3>Vi räknar ut när affären öppnar sig</h3>
+        <p>Varje tilldelat avtal sparas med vinnare, värde och slutdatum.
+        När slutet närmar sig dyker avtalet upp i ditt flöde, långt innan
+        någon annons har publicerats. Samma sak med de planerade
+        upphandlingarna: du ser dem medan kravbilden fortfarande går att
+        påverka.</p>
+      </article>
+      <article class="signalkort steg">
+        <span class="stegnr">3</span>
+        <h3>Du bevakar marknaden, kunden och konkurrenten</h3>
+        <p>Filtrera på bransch, yrke, län och tid till utgång och spara
+        filtret som bevakning. Följ en enskild kommun och få allt de gör.
+        Följ ett konkurrentföretag och få besked när deras avtal närmar
+        sig utgång. Allt landar i ett mejl varje morgon eller en gång i
+        veckan.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sektion" id="signaler">
+    <a id="vadvibevakar"></a>
+    <h2>Vad vi bevakar</h2>
+    <p class="sektion-ingress sektion-ingress-bred">
+      Pågående upphandlingar med hela annonsen, tilldelningar med vinnare
+      och anbudsantal, avtal som snart löper ut, upphandlingar som ännu
+      bara finns som politiska beslut, och vad organisationerna faktiskt
+      betalar sina leverantörer. Allt hämtat ur officiella
+      annonsdatabaser, myndigheters och kommuners egna publiceringar och
+      en rad andra öppna källor, sammankopplat till ett register över vem
+      som köper vad, av vem, för hur mycket och när avtalen tar slut.
+    </p>
+    <div class="signalgrid">
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='avtalsutgang') }}">
+        <h3>Avtalsutgång</h3>
+        <p>Ett driftavtal som löper ut om tio månader ger dig tid att
+        träffa kunden innan förstudien ens har startat.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='upphandling') }}">
+        <h3>Upphandling</h3>
+        <p>En pågående upphandling med hela annonsen, värdet och
+        tidsplanen. Hämtad från källan samma dygn som den publiceras.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='tilldelning') }}">
+        <h3>Tilldelning</h3>
+        <p>Varje tilldelat avtal visar vem som vann, till vilket värde och
+        med hur många anbud. Det är startpunkten för nästa utgång.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='svag-konkurrens') }}">
+        <h3>Svag konkurrens</h3>
+        <p>Fick avtalet bara två anbud? Då är marknaden svagt bearbetad,
+        och chansen att vinna nästa gång är större än i ett område med
+        tio anbudsgivare.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='planerad-upphandling') }}">
+        <h3>Planerad upphandling</h3>
+        <p>Kommuner och regioner planerar sina upphandlingar långt i
+        förväg, ibland tre år. Vi läser även deras beslutsunderlag, så du
+        ser projektet när pengarna beslutas och kravbilden fortfarande
+        går att påverka.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='konkurrentens-avtal') }}">
+        <h3>Konkurrentens avtal</h3>
+        <p>Slå upp vilket företag som helst i leverantörsregistret och se
+        vunna kontrakt, kunder, ramavtalsplatser och när varje avtal
+        löper ut. Följ företaget så hör vi av oss när något händer.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='marknadsinsikter') }}">
+        <h3>Marknadsinsikter</h3>
+        <p>Konkurrensläge, andel upphandlingar med ett enda anbud och
+        leverantörskoncentration för tjugo branscher, räknat ur
+        tilldelningsdata. Ladda ner branschen eller ett företag som
+        färdig rapport i Word.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+      <a class="signalkort signalkort-lank" href="{{ url_for('publikt.bevakar', slug='vad-kommunen-betalar') }}">
+        <h3>Vad kommunen faktiskt betalar</h3>
+        <p>För de organisationer som publicerar sina inköpsdata visar vi
+        vad som faktiskt fakturerats per leverantör och år. Ett
+        ramavtalstak säger vad kunden får handla för, inte vad de
+        handlar för.</p>
+      <span class="kort-mer">Läs mer →</span>
+      </a>
+    </div>
+
+  </section>
+
+  <section class="sektion" id="jamfor">
+    <h2>Varför inte Mercell eller Tendium?</h2>
+    <p class="sektion-ingress">
+      Consens är byggt för dig som vill se affärerna tidigt, betala ett
+      rimligt pris och slippa krångel.
+    </p>
+    <div class="signalgrid">
+      <div class="signalkort">
+        <h3>Ett pris, hela landet</h3>
+        <p>595 kronor per användare och månad. Inga nivåer, inga tillägg
+        och ingen offertrunda. Du ansöker och är igång samma dag.</p>
+      </div>
+      <div class="signalkort">
+        <h3>Vi börjar före annonsen</h3>
+        <p>Beslutade investeringar, politiska beslut och kommunernas
+        upphandlingsplaner ligger i flödet som egna signaler. När
+        annonsen kommer har du känt till affären länge.</p>
+      </div>
+      <div class="signalkort">
+        <h3>Avtalsutgångar som räknas ut</h3>
+        <p>Ur tilldelningarnas löptider räknar vi fram när avtalen tar
+        slut. Du ser omupphandlingen närma sig i stället för att bli
+        överraskad av den.</p>
+      </div>
+      <div class="signalkort">
+        <h3>Leverantörsregistret</h3>
+        <p>Över 17 000 företag som vunnit svenska offentliga kontrakt,
+        med kunder, ramavtalsplatser och utgångsdatum. Följ en konkurrent
+        och få besked när deras avtal närmar sig slutet.</p>
+      </div>
+      <div class="signalkort">
+        <h3>En enkel plattform</h3>
+        <p>Ett flöde, filter, bevakningar och mejl. Ingen
+        implementationsfas. Du loggar in och ser vad som händer.</p>
+      </div>
+      <div class="signalkort">
+        <h3>Marknadsinsikter ingår</h3>
+        <p>Konkurrensläge och leverantörskoncentration per bransch, plus
+        färdiga rapporter i Word om en bransch eller ett enskilt företag.
+        Ingen extra nivå att lösa.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sektion pris" id="pris">
+    <h2>Pris</h2>
+    <p class="sektion-ingress">Ett pris, ingen offert, ingen demo.</p>
+    <div class="priskort">
+      <div class="prisbelopp">595 kr</div>
+      <p>per användare och månad, oavsett organisationens storlek</p>
+    </div>
+    <p class="sektion-ingress">Ingen bindningstid och inga
+    startavgifter. Du ansöker, vi öppnar kontot samma dag.</p>
+  </section>
+
+  <section class="sektion slut-cta">
+    <h2>Redo att se affärerna innan alla andra?</h2>
+    <div class="cta-rad">
+      <a class="knapp-primar" href="/testa">Testa gratis i 14 dagar</a>
+    </div>
+  </section>
+
+{% if senaste %}
+  <section class="sektion" id="ur-flodet">
+    <h2>Ur flödet just nu</h2>
+    <div class="senaste-lista">
+      {% for u in senaste %}
+      <a class="senaste-rad" href="/upphandling/{{ u.titel|slugga }}-{{ u.id }}">
+        <span class="tagg tagg-upphandling">Upphandling</span>
+        <span class="senaste-titel">{{ u.titel }}</span>
+        <span class="senaste-info">{{ u.org_namn }} · sista anbudsdag {{ u.deadline }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+<script>
+(function () {
+  var hog = document.getElementById("glimthog");
+  if (!hog) return;
+  var kort = Array.prototype.slice.call(hog.querySelectorAll(".glimt-kort"));
+  var n = kort.length;
+  function rita() {
+    kort.forEach(function (k) {
+      k.className = "glimt-kort plats-" + k.dataset.plats;
+      k.setAttribute("aria-hidden", k.dataset.plats === "0" ? "false" : "true");
+    });
+  }
+  function bladdra() {
+    kort.forEach(function (k) {
+      k.dataset.plats = (parseInt(k.dataset.plats, 10) + n - 1) % n;
+    });
+    rita();
+  }
+  kort.forEach(function (k) {
+    k.addEventListener("click", function () {
+      if (k.dataset.plats !== "0") bladdra();
+    });
+  });
+  rita();
+  var timer = setInterval(bladdra, 6000);
+  hog.addEventListener("mouseenter", function () { clearInterval(timer); });
+})();
+</script>
+
+<footer class="sidfot">
+  <div class="sidfot-kolumner">
+    <div class="sidfot-kol sidfot-om">
+      <span class="fm">consens<span class="dot">.</span></span>
+      <p>Bevakning av upphandlingar och avtalsutgångar i offentlig sektor.</p>
+      <p class="sidfot-kontakt">
+        Nodtech AB · Org.nr 559599-1752<br>
+        <a href="mailto:info@consens.se">info@consens.se</a>
+      </p>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Tjänsten</h3>
+      <a href="/sok">Sök upphandlingar</a>
+      <a href="/produkt">Produkt</a>
+      <a href="/faq">Vanliga frågor</a>
+      <a href="/testa">Testa gratis i 14 dagar</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Juridik &amp; villkor</h3>
+      <a href="/integritetspolicy">Integritetspolicy</a>
+      <a href="/integritetspolicy">Behandling av personuppgifter (GDPR)</a>
+      <a href="/villkor">Användarvillkor</a>
+      <a href="mailto:info@consens.se">Registerutdrag &amp; radering</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Källor</h3>
+      <p class="sidfot-kallor">Officiella annonsdatabaser för svenska
+      och europeiska upphandlingar, inköpscentralernas avtalskataloger,
+      kommunernas och regionernas egna publiceringar samt offentlig
+      statistik. Varje post i tjänsten visar sin egen källa med länk.</p>
+    </div>
+  </div>
+  <div class="sidfot-botten">© 2026 Nodtech AB · Org.nr 559599-1752 · consens.se</div>
+</footer>
+
+</body>
+</html>

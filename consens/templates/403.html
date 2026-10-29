@@ -1,0 +1,6 @@
+{% extends "bas.html" %}
+{% block titel %}Consens, behörighet saknas{% endblock %}
+{% block innehall %}
+<section class="sidhuvud"><h1>Behörighet saknas</h1>
+<p>Den här sidan kräver administratörsbehörighet. <a href="{{ url_for('flode.flodet') }}">Till Flödet</a></p></section>
+{% endblock %}

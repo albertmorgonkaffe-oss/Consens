@@ -1,0 +1,52 @@
+{% extends "publik_bas.html" %}
+{% block titel %}Testa gratis i 14 dagar · Consens{% endblock %}
+{% block meta %}<meta name="description" content="Testa Consens gratis i 14 dagar. Ingen bindningstid, kostnadsfri uppsägning, påminnelse innan provperioden tar slut. 595 kr per licens och månad.">{% endblock %}
+{% block innehall %}
+<main class="testa-sida">
+  <div class="testa-text">
+    <h1>Testa gratis i 14 dagar</h1>
+    <p class="sektion-ingress">Hela tjänsten, inga begränsningar, och
+    provperioden utan finstilt.</p>
+
+    <p>Du anger kortuppgifter direkt men ingenting dras under de första
+    14 dagarna, och två dagar innan provperioden tar slut påminner vi
+    dig med ett mejl, så den första dragningen aldrig kommer som en
+    överraskning. Vill du inte fortsätta säger du upp kostnadsfritt i
+    kundportalen med två klick: ingen bindningstid, inga
+    uppsägningsavgifter, aldrig. Därefter kostar licensen 595 kr per
+    månad inklusive moms, med kvitto på mejlen varje månad.</p>
+
+    <h2>Det här ingår i licensen</h2>
+    <ul class="punktlista">
+      <li><b>Hela flödet av affärsmöjligheter:</b> upphandlingar,
+      avtalsutgångar och planerade upphandlingar, ofta ett till tre år
+      före annonsen, med bevakningar direkt i mejlen.</li>
+      <li><b>Registren och insikterna:</b> organisationer med årshjul,
+      17 000 leverantörer och konkurrensläget per bransch.</li>
+      <li><b>Allt att ta med:</b> rapporter i Word, export till Excel
+      och PDF, direktlänkar till underlag och färdigskrivna
+      utlämnandebegäranden.</li>
+    </ul>
+
+    <h2>Flera licenser?</h2>
+    <p>Behöver ni licenser till hela teamet eller hellre betala mot
+    faktura? Mejla <a href="mailto:hej@consens.se?subject=Paketpris%20flera%20licenser">hej@consens.se</a>
+    så återkommer vi samma dag med ett paketpris.</p>
+  </div>
+
+  <aside class="testa-kort">
+    <div class="testa-pris">595 kr</div>
+    <div class="testa-prisnot">per licens och månad, inklusive moms</div>
+    <ul class="testa-kortlista">
+      <li>14 dagar kostnadsfritt</li>
+      <li>Ingen bindningstid</li>
+      <li>Påminnelse innan första dragningen</li>
+    </ul>
+    <form method="get" action="{{ url_for('betalning.testa') }}">
+      <button class="knapp-primar" type="submit">Starta provperioden</button>
+    </form>
+    <p class="liten">Betalningen hanteras av Stripe. Consens ser aldrig
+    dina kortuppgifter.</p>
+  </aside>
+</main>
+{% endblock %}

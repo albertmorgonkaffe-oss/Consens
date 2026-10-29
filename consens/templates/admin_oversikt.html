@@ -1,0 +1,65 @@
+{% extends "admin_bas.html" %}
+{% block titel %}
+<section class="panel">
+  <h2>Källhälsa
+    {% if problem %}<span class="lage lage-hard">{{ problem|length }} kräver koll</span>
+    {% else %}<span class="lage lage-lag">Allt rullar</span>{% endif %}
+  </h2>
+  <p class="liten">Bedömningen jämför senaste körning med källans förväntade
+  intervall: dagliga källor varje dygn, planer och möteshandlingar
+  veckovis, reskontra halvårsvis.</p>
+  <table class="halsa-tabell">
+    <tr><th>Källa</th><th>Senast</th><th>Nya</th><th>Status</th></tr>
+    {% for h in halsa %}
+    <tr class="halsa-{{ h.lage }}">
+      <td>{{ h.kalla|kallnamn }} <span class="liten">{{ h.kalla }}</span></td>
+      <td>{{ h.senast[:16] if h.senast else '–' }}</td>
+      <td>{{ h.antal_nya if h.antal_nya is not none else '–' }}</td>
+      <td><span class="halsa-prick halsa-prick-{{ h.lage }}"></span>{{ h.etikett }}
+        {% if h.fel and h.status == 'fel' %}<div class="liten halsa-fel">{{ h.fel[:160] }}</div>{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  <div class="cache-rad">
+    <span class="liten">Cache:
+      {% if cache %}{% for c in cache %}{{ c.nyckel }} ({{ c.sekunder_kvar }} s kvar){% if not loop.last %} · {% endif %}{% endfor %}
+      {% else %}tom - nästa sidvisning bygger om{% endif %}</span>
+    <form method="post" action="{{ url_for('admin.rensa_cache') }}" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button type="submit" class="lank-knapp">Rensa cache</button>
+    </form>
+  </div>
+</section>
+Consens — Admin · Översikt{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <h1>Översikt</h1>
+  <div class="statrad statrad-4">
+    <div class="stat"><div class="tal">{{ antal.signaler }}</div><div class="etikett">Signaler</div></div>
+    <div class="stat"><div class="tal">{{ antal.avtal }}</div><div class="etikett">Avtal</div></div>
+    <div class="stat"><div class="tal">{{ antal.organisationer }}</div><div class="etikett">Organisationer</div></div>
+    <div class="stat"><div class="tal">{{ antal.anvandare }}</div><div class="etikett">Aktiva användare</div></div>
+  </div>
+
+  <h2>Status per källa</h2>
+  {% for k in per_kalla %}
+  <div class="admin-rad">
+    <b>{{ k.kalla }}</b>
+    <span>Senast: {{ k.senast }}</span>
+    <span>{{ k.antal_nya }} nya</span>
+    <span class="{% if k.status == 'fel' %}varning{% endif %}">{{ k.status }}</span>
+  </div>
+  {% else %}<p class="tomt">Inga körningar ännu.</p>{% endfor %}
+
+  <h2>Senaste körningarna</h2>
+  {% for k in historik %}
+  <div class="admin-rad">
+    <b>{{ k.kalla }}</b>
+    <span>{{ k.startad }}</span>
+    <span>{{ k.antal_nya }} nya · {{ k.antal_dubbletter }} dubbletter</span>
+    <span class="{% if k.status == 'fel' %}varning{% endif %}">{{ k.status }}{% if k.fel %}: {{ k.fel }}{% endif %}</span>
+  </div>
+  {% endfor %}
+</main>
+{% endblock %}

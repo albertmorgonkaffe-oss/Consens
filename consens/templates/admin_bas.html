@@ -1,0 +1,12 @@
+{% extends "bas.html" %}
+{% block innehall %}
+<nav class="admin-nav" aria-label="Admin">
+  <a href="{{ url_for('admin.oversikt') }}" {% if request.endpoint == 'admin.oversikt' %}class="aktiv"{% endif %}>Översikt</a>
+  <a href="{{ url_for('admin.statistik') }}" {% if request.endpoint == 'admin.statistik' %}class="aktiv"{% endif %}>Statistik</a>
+  <a href="{{ url_for('admin.utskick') }}" {% if request.endpoint == 'admin.utskick' %}class="aktiv"{% endif %}>Utskick</a>
+  <a href="{{ url_for('admin.anvandare') }}" {% if request.endpoint == 'admin.anvandare' %}class="aktiv"{% endif %}>Användare</a>
+  <a href="{{ url_for('admin.kontoforfragningar') }}" {% if request.endpoint == 'admin.kontoforfragningar' %}class="aktiv"{% endif %}>Kontoförfrågningar</a>
+  <a href="{{ url_for('admin.sok_signal') }}" {% if request.endpoint == 'admin.sok_signal' %}class="aktiv"{% endif %}>Sök signal</a>
+</nav>
+{% block admininnehall %}{% endblock %}
+{% endblock %}

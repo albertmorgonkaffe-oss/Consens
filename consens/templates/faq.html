@@ -1,0 +1,140 @@
+{% extends "publik_bas.html" %}
+{% block titel %}Vanliga frågor · Consens{% endblock %}
+{% block meta %}<meta name="description" content="Vanliga frågor om Consens och om offentlig upphandling: källor, avtalsutgångar, pris, bevakningar, ESPD, tröskelvärden, ramavtal och avtalsspärr.">{% endblock %}
+{% block innehall %}
+<main class="landning">
+  <section class="hero hero-liten">
+    <h1>Vanliga frågor</h1>
+  </section>
+  <section class="sektion">
+    <div class="faq-lista">
+      <details class="faq-post" id="kallor"><summary>Varifrån kommer uppgifterna?</summary>
+        <p>Från EU:s annonsdatabas TED, från de svenska
+        annonsdatabaserna och ur inköpscentralernas avtalskataloger.
+        Därtill kommer ett växande antal källor som publiceras av
+        kommunerna och regionerna själva: upphandlingsplaner,
+        investeringsbudgetar, beslutsunderlag från nämnder och
+        fullmäktige samt öppna inköpsdata. Varje källa har sin egen
+        struktur, sitt eget publiceringsmönster och sina egna egenheter,
+        så vi underhåller en separat inläsning per källa med
+        felövervakning, dubblettkontroll och koppling mot
+        organisationsnummer. Det är det arbetet som gör att spridd
+        information blir ett sammanhängande register. Varje post i
+        tjänsten visar sin källa med länk.</p></details>
+      <details class="faq-post" id="tidigare"><summary>Varför får jag signaler som inte finns i andra bevakningstjänster?</summary>
+        <p>De flesta tjänster hämtar från annonsdatabaserna. Vi gör det
+        också, men lägger till två saker: dels räknar vi fram
+        avtalsutgångar ur tilldelningarnas löptider, dels läser vi
+        beslutsunderlagen som föregår annonsen. En kommun som beslutar om
+        en ny simhall i budgeten, tar ett genomförandebeslut i nämnden
+        och först därefter annonserar upphandlingen ger tre signaler hos
+        oss, varav den sista är den enda som syns hos de andra.</p></details>
+      <details class="faq-post" id="demo"><summary>Behöver jag boka en demo för att komma igång?</summary>
+        <p>Nej. Priset står på startsidan, du fyller i ansökan och vi
+        öppnar kontot samma dag. Vill du hellre prata med en människa
+        först går det bra, men det är inget krav för att få se
+        tjänsten.</p></details>
+      <details class="faq-post" id="jamforelse"><summary>Hur skiljer ni er från Mercell och Tendium?</summary>
+        <p>De är etablerade tjänster som gör mycket bra, men de kräver
+        att du bokar en demo och pratar med en säljare innan du får ett
+        pris. Vi har ett pris på sidan och konto samma dag. Innehållsligt
+        börjar vi tidigare i kedjan: beslutade investeringar, kommunernas
+        upphandlingsplaner och nämndbeslut ligger som egna signaler,
+        avtalsutgångar räknas fram ur tilldelningarnas löptider, och
+        leverantörsregistret visar vad konkurrenterna sitter på och när
+        deras avtal löper ut.</p></details>
+      <details class="faq-post" id="avtalsutgang"><summary>Vad menar ni med avtalsutgång?</summary>
+        <p>När ett avtal tilldelas sparar vi slutdatumet. I god tid innan
+        avtalet tar slut dyker det upp i flödet som en kommande
+        affärsmöjlighet, ofta långt innan upphandlingen annonseras om.</p></details>
+      <details class="faq-post" id="konto"><summary>Hur får jag ett konto?</summary>
+        <p>Fyll i ansökan så sätter vi upp kontot samma dag och mejlar
+        inloggningen. Det går inte att registrera sig själv ännu.</p></details>
+      <details class="faq-post" id="pris"><summary>Vad kostar det?</summary>
+        <p>595 kronor per användare och månad. Samma pris oavsett hur stor
+        organisationen är, och ingen offertrunda behövs.</p></details>
+      <details class="faq-post" id="bindningstid"><summary>Finns det någon bindningstid?</summary>
+        <p>Nej. Ingen bindningstid och ingen uppsägningstid. Du kan avsluta
+        när du vill, utan att förbinda dig till något, och kontot löper då
+        bara ut vid nästa månadsskifte.</p></details>
+      <details class="faq-post" id="bevakningar"><summary>Kan jag få bevakningar med e-post?</summary>
+        <p>Ja. Spara valfria filter som en bevakning så mejlar vi nya
+        träffar, varje dag eller en gång i veckan.</p></details>
+      <details class="faq-post" id="export"><summary>Kan jag exportera det jag hittar?</summary>
+        <p>Ja. Samla poster i egna listor och ladda ner dem som Excel.
+        Varje post går också att ladda ner som PDF med alla uppgifter.</p></details>
+    </div>
+
+    <h2 class="faq-rubrik">Om offentlig upphandling</h2>
+    <p class="sektion-ingress">Begrepp som dyker upp när man säljer till offentlig sektor.</p>
+    <div class="faq-lista">
+      <details class="faq-post" id="anbud"><summary>Kan jag lämna anbud via Consens?</summary>
+        <p>Nej. Consens bevakar och visar var affärerna finns. Själva anbudet
+        lämnar du i den plattform som den upphandlande organisationen använder,
+        till exempel Kommers Annons, Mercell TendSign eller e-Avrop. Varje
+        upphandling i Consens har en länk dit.</p></details>
+      <details class="faq-post" id="espd"><summary>Vad är ESPD?</summary>
+        <p>European Single Procurement Document, på svenska europeiskt enhetligt
+        upphandlingsdokument. En standardiserad egenförsäkran där du intygar att
+        inga uteslutningsgrunder finns och att kvalificeringskraven uppfylls, i
+        stället för att bifoga alla bevis från början. Bevisen begärs in senare,
+        normalt bara från den leverantör som ska tilldelas kontraktet. ESPD
+        används vid upphandlingar över tröskelvärdena och fylls i direkt i
+        anbudsplattformen.</p></details>
+      <details class="faq-post" id="troskelvarde"><summary>Vad betyder tröskelvärde?</summary>
+        <p>Beloppsgränsen som avgör vilket regelverk som gäller. Över
+        tröskelvärdet styr EU:s upphandlingsdirektiv och annonsen måste
+        publiceras i EU:s databas TED. Under tröskelvärdet gäller nationella
+        regler och annonsen publiceras i en svensk annonsdatabas. Beloppen
+        ses över av EU-kommissionen vartannat år och aktuella nivåer finns
+        hos Upphandlingsmyndigheten. Consens hämtar annonser från båda
+        nivåerna.</p></details>
+      <details class="faq-post" id="ramavtal"><summary>Vad är ett ramavtal?</summary>
+        <p>Ett avtal som fastställer villkoren för kommande köp, så kallade
+        avrop, under en bestämd period. Enligt LOU får ett ramavtal som
+        huvudregel löpa i högst fyra år. Det takbelopp som anges är vad kunden
+        får handla för, inte en garanti för volym. Vill du veta vad som
+        faktiskt köpts visar Consens öppna inköpsdata för de organisationer
+        som publicerar sådana.</p></details>
+      <details class="faq-post" id="avtalssparr"><summary>Vad är avtalsspärr?</summary>
+        <p>Tiden efter tilldelningsbeslutet då den upphandlande organisationen
+        inte får teckna avtal. Spärren är minst tio dagar när beslutet skickats
+        elektroniskt och ger förlorande anbudsgivare möjlighet att begära
+        överprövning i förvaltningsrätten.</p></details>
+      <details class="faq-post" id="cpv"><summary>Vad är CPV-koder?</summary>
+        <p>Common Procurement Vocabulary, EU:s gemensamma klassificering av
+        varor och tjänster. Varje annons har en eller flera CPV-koder som
+        beskriver vad som köps. Consens använder koderna för branschfiltret,
+        så att du kan bevaka till exempel bygg, IT eller livsmedel utan att
+        själv hålla reda på koderna.</p></details>
+      <details class="faq-post" id="konkurrenters-anbud"><summary>Kan jag se konkurrenternas anbud?</summary>
+        <p>Ofta, efter tilldelningsbeslutet. Hos kommuner, regioner och
+        myndigheter blir anbuden som huvudregel allmänna handlingar när
+        upphandlingen är avslutad, även om delar kan sekretessbeläggas som
+        affärshemligheter. Du begär ut dem med stöd av offentlighetsprincipen.
+        Consens har en mejlknapp i detaljpanelen som formulerar begäran åt dig,
+        med rätt mottagare.</p></details>
+    </div>
+    </section>
+  <section class="sektion slut-cta">
+    <h2>Fick du inte svar?</h2>
+    <div class="cta-rad">
+      <a class="knapp-primar" href="{{ url_for('publikt.testa') }}">Testa gratis i 14 dagar</a>
+      <a class="knapp-sekundar-lank" href="mailto:hej@consens.se?subject=Fr%C3%A5ga%20om%20Consens">Mejla oss</a>
+    </div>
+    <p class="liten">Vi svarar oftast samma dag.</p>
+  </section>
+</main>
+<script>
+(function () {
+  function oppna() {
+    var id = location.hash.slice(1);
+    if (!id) return;
+    var post = document.getElementById(id);
+    if (post && post.tagName === "DETAILS") { post.open = true; post.scrollIntoView({block: "start"}); }
+  }
+  oppna();
+  window.addEventListener("hashchange", oppna);
+})();
+</script>
+{% endblock %}

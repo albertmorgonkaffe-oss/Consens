@@ -1,0 +1,39 @@
+{% extends "publik_bas.html" %}
+{% block titel %}{{ s.titel }} | Consens{% endblock %}
+{% block meta %}<meta name="description" content="{{ s.titel }} {{ spann }}. Se leverantör, avtalsvärde och exakt slutdatum med ett Consens-konto.">{% endblock %}
+{% block innehall %}
+<main class="teaser">
+  <div class="metadata">
+    <span class="tagg tagg-utgang">Avtalsutgång</span>
+    {% if bransch %}<span class="chip">{{ bransch }}</span>{% endif %}
+    {% if s.lan %}<span class="chip">{{ s.lan }}</span>{% endif %}
+  </div>
+  <h1>{{ s.titel }}</h1>
+  <p class="teaser-org">{{ s.org_namn }} · {{ s.orgnr }}</p>
+
+  <p class="teaser-spann">Avtalet löper ut <b>{{ spann }}</b>.</p>
+
+  <div class="suddig-matare" aria-hidden="true">
+    <div class="loptid"><div class="loptid-bar"><div class="loptid-fyll" style="width:72%"></div></div></div>
+  </div>
+
+  <dl class="teaser-fakta">
+    <dt>Leverantör i dag</dt><dd class="last">🔒 Visas med konto</dd>
+    <dt>Avtalsvärde</dt><dd class="last">🔒 Visas med konto</dd>
+    <dt>Exakt slutdatum</dt><dd class="last">🔒 Visas med konto</dd>
+    <dt>Antal anbud i upphandlingen</dt><dd class="last">🔒 Visas med konto</dd>
+    <dt>Källa</dt><dd>{{ s.kalla }}</dd>
+  </dl>
+
+  <div class="teaser-cta">
+    <h2>Se hela bilden innan konkurrenterna</h2>
+    <p>Ett Consens-konto visar vem som sitter på avtalet, till vilket värde,
+    exakt när det löper ut och hur många anbud som konkurrerade sist —
+    plus alla andra avtalsutgångar hos {{ s.org_namn }}.</p>
+    <div class="cta-rad">
+      <a class="knapp-primar" href="mailto:hej@consens.se?subject=Konto%20p%C3%A5%20Consens">Boka demo</a>
+      <a class="knapp-sekundar" href="{{ url_for('auth.logga_in', nasta=request.path) }}">Logga in</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

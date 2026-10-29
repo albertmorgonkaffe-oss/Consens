@@ -1,0 +1,25 @@
+# Hemligheter
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Data och databaser
+instance/
+*.sqlite
+*.sqlite3
+*.db
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Backupfiler och loggar
+*.bak
+*.bak-*
+*.log
+.DS_Store

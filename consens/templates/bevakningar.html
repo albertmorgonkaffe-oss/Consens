@@ -1,0 +1,202 @@
+{% extends "bas.html" %}
+{% block titel %}Consens — Bevakningar<section class="panel">
+  <h2>Bevakade leverantörer{% if bevakade_leverantorer %} ({{ bevakade_leverantorer|length }}){% endif %}</h2>
+  {% if bevakade_leverantorer %}
+  <p class="liten">Du får en rad i din digest när någon av dessa får ett
+  avtal som närmar sig utgång, eller vinner ett nytt kontrakt.</p>
+  {% for bl in bevakade_leverantorer %}
+  <div class="inkop-rad">
+    <span class="inkop-namn"><a href="{{ url_for('leverantorer.profil', slug=bl.slug) }}">{{ bl.visningsnamn }}</a>{% if bl.orgnr %} <span class="liten">{{ bl.orgnr }}</span>{% endif %}</span>
+    <form method="post" action="{{ url_for('leverantorer.folj', slug=bl.slug) }}" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="nasta" value="bevakningar">
+      <button type="submit" class="lank-knapp">Sluta följa</button>
+    </form>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="liten">Inga än. Öppna en leverantör i
+  <a href="{{ url_for('leverantorer.lista') }}?sok=1">leverantörsregistret</a>
+  och tryck Följ, så bevakas deras avtalsutgångar och nya kontrakt åt dig.</p>
+  {% endif %}
+</section>
+{% endblock %}
+{% block innehall %}
+
+<main class="sida">
+  <div class="sidhuvud" style="padding:0">
+    <div>
+      <h1>Bevakningar</h1>
+      <p><b>{{ bevakningar|length }} bevakningar</b> · e-postutskick går varje morgon efter hämtningarna, dagligen eller veckovis</p>
+    </div>
+  </div>
+
+  <h2>Sökbevakningar <span class="antal-h">{{ bevakningar|length }} st</span></h2>
+  {% for b in bevakningar %}
+  <div class="bev-kort">
+    <div class="bev-topp">
+      <span class="bev-namn">{{ b.namn }}</span>
+      <div class="hoger">
+        <form method="post" action="{{ url_for('flode.bevakning_andra', bid=b.id) }}" class="frekvens"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <button name="atgard" value="daglig" {% if b.frekvens=='daglig' %}class="vald"{% endif %}>Dagligen</button>
+          <button name="atgard" value="veckovis" {% if b.frekvens=='veckovis' %}class="vald"{% endif %}>Veckovis</button>
+        </form>
+        <form method="post" action="{{ url_for('flode.bevakning_andra', bid=b.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <button name="atgard" value="vaxla" class="vaxel {% if b.aktiv %}pa{% endif %}"
+                  role="switch" aria-checked="{{ 'true' if b.aktiv else 'false' }}"
+                  aria-label="Bevakning på/av"></button>
+        </form>
+      </div>
+    </div>
+    <div class="chips">
+      {% for c in b.chips %}<span class="chip">{{ c }}</span>{% endfor %}
+    </div>
+    <div class="bev-fot">
+      <a href="{{ url_for('flode.flodet') }}?{{ b.params }}">Visa träffar i Flödet</a>
+      <form method="post" action="{{ url_for('flode.bevakning_andra', bid=b.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <button name="atgard" value="ta-bort" class="tabort">Ta bort</button>
+      </form>
+    </div>
+  </div>
+  {% else %}
+  <p class="tomt">Inga bevakningar ännu. Filtrera i
+  <a href="{{ url_for('flode.flodet') }}">Flödet</a> och klicka
+  ”Spara som bevakning”.</p>
+  {% endfor %}
+
+  <h2>Sparade upphandlingar <span class="antal-h">{{ sparade_upphandlingar|length }} st</span></h2>
+  {% for s in sparade_upphandlingar %}
+  <div class="sparad">
+    <span class="stjarna">★</span>
+    {% if s.org_orgnr %}<a href="{{ url_for('flode.organisation', orgnr=s.org_orgnr) }}">{{ s.titel }}</a>{% else %}<span class="sparad-titel">{{ s.titel }}</span>{% endif %}
+    <span class="info">{{ s.org_namn }} · anbud {{ s.deadline or '–' }}</span>
+    <div class="sparad-verktyg">
+      {% if listor %}
+      <form method="post" class="lista-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="signal_id" value="{{ s.id }}">
+        <select name="lista_id" onchange="this.form.action='/listor/'+this.value+'/lagg-till'; this.form.submit()">
+          <option value="">+ Lista…</option>
+          {% for l in listor %}<option value="{{ l.lista.id }}">{{ l.lista.namn }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('flode.spara_signal', signal_id=s.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="nasta" value="{{ url_for('flode.bevakningar') }}">
+        <button class="tabort">Ta bort</button>
+      </form>
+    </div>
+  </div>
+  {% else %}<p class="tomt">Inget sparat ännu. Klicka bokmärket uppe till höger
+  på en upphandling i <a href="{{ url_for('flode.flodet') }}?typ=upphandling">Flödet</a>
+  så samlas den här.</p>{% endfor %}
+
+  <h2>Sparade avtalsutgångar <span class="antal-h">{{ sparade_utgangar|length }} st</span></h2>
+  {% for s in sparade_utgangar %}
+  <div class="sparad">
+    <span class="stjarna">★</span>
+    <span class="sparad-titel">{{ s.titel }}</span>
+    <span class="info">{{ s.org_namn }} · löper ut {{ s.deadline or '–' }}</span>
+    <div class="sparad-verktyg">
+      {% if listor %}
+      <form method="post" class="lista-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="signal_id" value="{{ s.id }}">
+        <select name="lista_id" onchange="this.form.action='/listor/'+this.value+'/lagg-till'; this.form.submit()">
+          <option value="">+ Lista…</option>
+          {% for l in listor %}<option value="{{ l.lista.id }}">{{ l.lista.namn }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('flode.spara_signal', signal_id=s.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="nasta" value="{{ url_for('flode.bevakningar') }}">
+        <button class="tabort">Ta bort</button>
+      </form>
+    </div>
+  </div>
+  {% else %}<p class="tomt">Inget sparat ännu. Bokmärk en avtalsutgång i
+  <a href="{{ url_for('flode.flodet') }}?typ=avtalsutgang">Flödet</a> för att följa den här.</p>{% endfor %}
+
+  <h2>Sparade avtal <span class="antal-h">{{ sparade_avtal|length }} st</span></h2>
+  {% for a in sparade_avtal %}
+  <div class="sparad">
+    <span class="stjarna">★</span>
+    <span class="sparad-titel">{{ a.titel }}</span>
+    <span class="info">{{ a.org_namn }}{% if a.leverantor %} · {{ a.leverantor }}{% endif %} · löper ut {{ a.slutdatum or '–' }}</span>
+    <div class="sparad-verktyg">
+      {% if listor %}
+      <form method="post" class="lista-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="avtal_id" value="{{ a.id }}">
+        <select name="lista_id" onchange="this.form.action='/listor/'+this.value+'/lagg-till'; this.form.submit()">
+          <option value="">+ Lista…</option>
+          {% for l in listor %}<option value="{{ l.lista.id }}">{{ l.lista.namn }}</option>{% endfor %}
+        </select>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('flode.spara_avtal', avtal_id=a.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="nasta" value="{{ url_for('flode.bevakningar') }}">
+        <button class="tabort">Ta bort</button>
+      </form>
+    </div>
+  </div>
+  {% else %}<p class="tomt">Inget sparat ännu. Bokmärk avtal under
+  <a href="{{ url_for('flode.avtalslista') }}">Avtal</a> eller på en organisationssida.</p>{% endfor %}
+
+  <h2>Mina listor <span class="antal-h">{{ listor|length }} st</span></h2>
+  <p class="sektion-ingress">Samla upphandlingar, avtalsutgångar och avtal i egna listor
+  — till exempel per säljare eller kvartal, och exportera till Excel.</p>
+  <form method="post" action="{{ url_for('flode.lista_skapa') }}" class="spara-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="text" name="namn" placeholder="Ny lista, t.ex. Prospekt Q4…" required>
+    <button class="knapp-sekundar liten-knapp" type="submit">Skapa lista</button>
+  </form>
+  {% for l in listor %}
+  <div class="bev-kort">
+    <div class="bev-topp">
+      <span class="bev-namn">{{ l.lista.namn }}</span>
+      <span class="bev-traffar">{{ l.poster|length }} poster</span>
+      <div class="hoger">
+        <a class="knapp-sekundar liten-knapp"
+           href="{{ url_for('flode.lista_export', lid=l.lista.id) }}">Exportera till Excel</a>
+        <form method="post" action="{{ url_for('flode.lista_andra', lid=l.lista.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <button name="atgard" value="ta-bort" class="tabort">Ta bort lista</button>
+        </form>
+      </div>
+    </div>
+    {% for p in l.poster %}
+    <div class="listpost">
+      <span class="tagg {% if p.s_typ == 'avtalsutgang' %}tagg-utgang{% elif p.s_typ %}tagg-upphandling{% else %}tagg-utgang{% endif %}">
+        {% if p.s_typ == 'avtalsutgang' %}Utgång{% elif p.s_typ %}Upphandling{% else %}Avtal{% endif %}</span>
+      <span>{{ p.s_titel or p.a_titel }}</span>
+      <span class="info">{{ p.org_namn }}</span>
+      <form method="post" action="{{ url_for('flode.lista_andra', lid=l.lista.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="post_id" value="{{ p.post_id }}">
+        <button name="atgard" value="ta-bort-post" class="tabort">×</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="liten">Tom lista, lägg till från Sparat ovan via ”+ Lista…”.</p>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</main>
+
+<section class="panel">
+  <h2>Bevakade leverantörer{% if bevakade_leverantorer %} ({{ bevakade_leverantorer|length }}){% endif %}</h2>
+  {% if bevakade_leverantorer %}
+  <p class="liten">Du får en rad i din digest när någon av dessa får ett
+  avtal som närmar sig utgång, eller vinner ett nytt kontrakt.</p>
+  {% for bl in bevakade_leverantorer %}
+  <div class="inkop-rad">
+    <span class="inkop-namn"><a href="{{ url_for('leverantorer.profil', slug=bl.slug) }}">{{ bl.visningsnamn }}</a>{% if bl.orgnr %} <span class="liten">{{ bl.orgnr }}</span>{% endif %}</span>
+    <form method="post" action="{{ url_for('leverantorer.folj', slug=bl.slug) }}" style="margin:0">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="nasta" value="bevakningar">
+      <button type="submit" class="lank-knapp">Sluta följa</button>
+    </form>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="liten">Inga än. Öppna en leverantör i
+  <a href="{{ url_for('leverantorer.lista') }}?sok=1">leverantörsregistret</a>
+  och tryck Följ, så bevakas deras avtalsutgångar och nya kontrakt åt dig.</p>
+  {% endif %}
+</section>
+{% endblock %}

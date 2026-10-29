@@ -1,0 +1,55 @@
+{% extends "publik_bas.html" %}
+{% block titel %}Inbjudan · Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida installningar inbjudan-sida">
+  <h1>Välkommen till Consens</h1>
+  {% if ogiltig %}
+  <section class="inst-block">
+    <p class="info-ruta">Inbjudningslänken har gått ut eller är redan
+    använd. Be den som bjöd in dig att skicka en ny.</p>
+  </section>
+  {% else %}
+  <p class="inbjudan-ingress">Du har bjudits in med kontonivån
+  <b>{{ roll }}</b> för adressen <b>{{ epost }}</b>.
+  Fyll i uppgifterna så är kontot klart på en halv minut.</p>
+  {% if fel %}<p class="fel-ruta">{{ fel }}</p>{% endif %}
+
+  <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <section class="inst-block">
+      <h2>Dina uppgifter</h2>
+      <label>Namn
+        <input type="text" name="namn" autocomplete="name" autofocus></label>
+      <label>Företag
+        <input type="text" name="foretag" autocomplete="organization"></label>
+      <label>Välj lösenord <span class="liten">(minst 8 tecken)</span>
+        <input type="password" name="losenord" minlength="8"
+               autocomplete="new-password" required></label>
+    </section>
+
+    <section class="inst-block">
+      <h2>Samtycken</h2>
+      <label class="vaxel-rad">
+        <span class="vaxel">
+          <input type="checkbox" name="godkanner" value="1" required>
+          <span class="vaxel-spar" aria-hidden="true"></span>
+        </span>
+        <span>Jag godkänner
+          <a href="/villkor" target="_blank">användarvillkoren</a> och
+          <a href="/integritetspolicy" target="_blank">behandlingen av
+          personuppgifter</a> <span class="liten">(krävs)</span></span>
+      </label>
+      <label class="vaxel-rad">
+        <span class="vaxel">
+          <input type="checkbox" name="nyhetsbrev" value="1">
+          <span class="vaxel-spar" aria-hidden="true"></span>
+        </span>
+        <span>Jag vill få nyhetsbrev och utskick om tjänsten
+          <span class="liten">(valfritt)</span></span>
+      </label>
+    </section>
+
+    <button class="knapp-primar knapp-stor" type="submit">Skapa kontot</button>
+  </form>
+  {% endif %}
+</main>
+{% endblock %}

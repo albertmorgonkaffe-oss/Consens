@@ -1,0 +1,30 @@
+# Consens - daglig drift. Installeras med:
+#   crontab -u consens /opt/consens/deploy/consens-cron
+# Tider i svensk tid. CRON_TZ ovan gäller oavsett att servern gar pa UTC.
+
+CRON_TZ=Europe/Stockholm
+SHELL=/bin/bash
+FLASK_APP=consens
+
+# 06:30 - hämta alla källor (TED, TED-tilldelningar, Kommers, e-Avrop)
+# och generera avtalsutgångssignaler av dagens nya avtal.
+30 6 * * * cd /opt/consens && ./venv/bin/flask kor-kallor >> /var/log/consens/kallor.log 2>&1
+0 12 * * * cd /opt/consens && ./venv/bin/flask kor-kallor >> /var/log/consens/kallor.log 2>&1
+
+# 07:00 - e-postdigest. Måndagar inkluderas veckobevakningarna.
+0 7 * * 2-7 cd /opt/consens && ./venv/bin/flask skicka-digest >> /var/log/consens/digest.log 2>&1
+0 7 * * 1 cd /opt/consens && ./venv/bin/flask skicka-digest --veckovis >> /var/log/consens/digest.log 2>&1
+
+# 07:05 - påminnelse två dagar innan Stripe-trialen tar slut.
+5 7 * * * cd /opt/consens && ./venv/bin/flask paminn-trial >> /var/log/consens/betalning.log 2>&1
+# 06:50 måndagar - kommunala upphandlingsplaner (Trollhättan, Skövde,
+# Region Stockholm, Stockholms stad, Adda). Uppdaterar flyttade perioder.
+50 6 * * 1 cd /opt/consens && ./venv/bin/flask hamta-planer >> /var/log/consens/planer.log 2>&1
+# 06:55 kvartalsvis - Kolada-nyckeltal (invånarantal m.m.)
+55 6 1 1,4,7,10 * cd /opt/consens && ./venv/bin/flask hamta-nyckeltal >> /var/log/consens/planer.log 2>&1
+# 04:30 den 15:e i februari och augusti - kommunernas öppna
+# leverantörsreskontror (publiceras årsvis, halvårskörning räcker).
+30 4 15 2,8 * cd /opt/consens && ./venv/bin/flask hamta-inkop-alla >> /var/log/consens/planer.log 2>&1
+# 05:30 den 15:e i mars och september - leta nya MeetingPlus-portaler.
+# Träffar sparas i databasen och används av nästa planhämtning.
+30 5 15 3,9 * cd /opt/consens && ./venv/bin/flask sondera-meetingplus >> /var/log/consens/planer.log 2>&1

@@ -1,0 +1,65 @@
+{% extends "bas.html" %}
+{% block innehall %}
+<section class="sidhuvud sidhuvud-rad">
+  <div><h1>Leverantörer</h1>
+  <p class="ingress-sida">Företagen som vinner offentliga kontrakt: vunna
+  avtal, kunder, ramavtalsplatser och kommande avtalsutgångar per
+  leverantör.</p></div>
+  {% if sokt %}<p><b>{{ "{:,}".format(totalt).replace(",", " ") }} leverantörer</b>{% if antal_sidor > 1 %} · sida {{ sida }} av {{ antal_sidor }}{% endif %}</p>{% endif %}
+</section>
+
+<form class="filterrad" method="get" aria-label="Filter">
+  <input type="hidden" name="sok" value="1">
+  <div class="sokfalt">
+    <input type="search" name="q" value="{{ valda.get('q','') }}"
+           placeholder="Sök företagsnamn eller orgnr…" aria-label="Sök leverantör">
+  </div>
+  <label class="endast-filter"><select name="bransch">
+    <option value="">Alla branscher</option>
+    {% for b in branscher %}
+    <option value="{{ b }}" {% if valda.get('bransch') == b %}selected{% endif %}>{{ b }}</option>
+    {% endfor %}
+  </select></label>
+  <label class="endast-filter"><select name="endast">
+    <option value="">Alla leverantörer</option>
+    <option value="utgang" {% if valda.get('endast') == 'utgang' %}selected{% endif %}>Med kommande avtalsutgång</option>
+    <option value="ramavtal" {% if valda.get('endast') == 'ramavtal' %}selected{% endif %}>Med ramavtalsplats</option>
+  </select></label>
+  <button class="tillampa-rad" type="submit">Tillämpa</button>
+  {% if sokt and totalt %}
+  <span class="sortera-valj"><label>Sortera
+    <select name="sortera" onchange="const u=new URL(location);u.searchParams.set('sortera',this.value);u.searchParams.delete('sida');location.assign(u.toString())">
+      {% for v, n in [('varde','Störst kontraktsvärde'), ('avtal','Flest kontrakt'), ('utgang','Närmast avtalsutgång'), ('namn','Namn A–Ö')] %}
+      <option value="{{ v }}" {% if valda.get('sortera', 'varde') == v %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select></label></span>
+  {% endif %}
+</form>
+
+<main class="register">
+  {% if not sokt %}
+  <p class="tomt org-prompt">Välj filter, eller inga alls, och tryck
+  <b>Tillämpa</b> för att visa leverantörer.</p>
+  {% elif not rader %}
+  <p class="tomt">Ingen leverantör matchade filtren.</p>
+  {% endif %}
+  {% for g in rader %}
+  <a class="panel lev-rad" href="{{ url_for('leverantorer.profil', slug=g.slug) }}">
+    <span class="lev-namn">{{ g.visning }}{% if g.orgnr %} <span class="liten">{{ g.orgnr }}</span>{% endif %}</span>
+    <span class="lev-stat">{{ g.avtal|length }} avtal
+      {%- if g.varde %} · ca {{ "{:,.0f}".format(g.varde / 1000000).replace(",", " ") }} mnkr{% endif %}
+      {%- if g.orger %} · {{ g.orger|length }} kunder{% endif %}
+      {%- if g.ramavtal %} · {{ g.ramavtal|length }} ramavtalsplatser{% endif %}
+      {%- if g.nasta_utgang %} · nästa utgång {{ g.nasta_utgang }}{% endif %}</span>
+  </a>
+  {% endfor %}
+</main>
+
+{% if sokt and antal_sidor > 1 %}
+<nav class="paginering">
+  {% if sida > 1 %}<a href="?{{ bas_qs }}&amp;sida={{ sida - 1 }}">← Föregående</a>{% endif %}
+  <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+  {% if sida < antal_sidor %}<a href="?{{ bas_qs }}&amp;sida={{ sida + 1 }}">Nästa →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

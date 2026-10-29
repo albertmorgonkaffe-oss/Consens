@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titel %}Consens{% endblock %}</title>
+{% block meta %}<meta name="description" content="Consens bevakar upphandlingar, avtalsutgångar och planerade upphandlingar i offentlig sektor. Se affären innan den blir en upphandling.">{% endblock %}
+<link rel="canonical" href="{{ request.base_url }}">
+<meta property="og:site_name" content="Consens">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ self.titel() }}">
+<meta property="og:description" content="Bevakning av upphandlingar, avtalsutgångar och planerade upphandlingar i offentlig sektor.">
+<meta property="og:url" content="{{ request.base_url }}">
+<meta property="og:locale" content="sv_SE">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='consens.css') }}?v={{ css_v }}">
+  <script src="https://molnet.digital/track.js" data-site="consens" defer></script>
+</head>
+<body>
+<header class="topnav">
+  <a class="wordmark" href="/">consens<span class="dot">.</span></a>
+  <nav class="huvudnav">
+    <a href="{{ url_for('publikt.sok') }}">Sök upphandlingar</a>
+    <a href="/produkt">Produkt</a>
+    {% include "_nav_faq.html" %}
+  </nav>
+  <span class="user">
+    <span class="nav-avdelare" aria-hidden="true"></span>
+    <a href="{{ url_for('auth.logga_in') }}" class="knapp-sekundar">Logga in</a>
+    <a href="/testa" class="knapp-primar">Testa gratis i 14 dagar</a>
+  </span>
+</header>
+{% with meddelanden = get_flashed_messages() %}
+  {% if meddelanden %}<div class="flash-rad">{% for m in meddelanden %}<p class="info-ruta">{{ m }}</p>{% endfor %}</div>{% endif %}
+{% endwith %}
+{% block innehall %}{% endblock %}
+<footer class="sidfot">
+  <div class="sidfot-kolumner">
+    <div class="sidfot-kol sidfot-om">
+      <span class="fm">consens<span class="dot">.</span></span>
+      <p>Bevakning av upphandlingar och avtalsutgångar i offentlig sektor.</p>
+      <p class="sidfot-kontakt">
+        Nodtech AB · Org.nr 559599-1752<br>
+        <a href="mailto:info@consens.se">info@consens.se</a>
+      </p>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Tjänsten</h3>
+      <a href="/sok">Sök upphandlingar</a>
+      <a href="/produkt">Produkt</a>
+      <a href="/faq">Vanliga frågor</a>
+      <a href="/testa">Testa gratis i 14 dagar</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Juridik &amp; villkor</h3>
+      <a href="/integritetspolicy">Integritetspolicy</a>
+      <a href="/integritetspolicy">Behandling av personuppgifter (GDPR)</a>
+      <a href="/villkor">Användarvillkor</a>
+      <a href="mailto:info@consens.se">Registerutdrag &amp; radering</a>
+    </div>
+    <div class="sidfot-kol">
+      <h3>Källor</h3>
+      <p class="sidfot-kallor">TED, KommersAnnons och e-Avrop samt
+      inköpscentralernas avtalskataloger (Adda, Statens
+      inköpscentral, HBV, Sinfra). Fler källor ansluts löpande.</p>
+    </div>
+  </div>
+  <div class="sidfot-botten">© 2026 Nodtech AB · Org.nr 559599-1752 · consens.se</div>
+</footer>
+<script src="{{ url_for('static', filename='consens.js') }}"></script>
+</body>
+</html>

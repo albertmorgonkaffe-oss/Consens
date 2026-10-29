@@ -1,0 +1,75 @@
+{% extends "bas.html" %}
+{% from "bas.html" import loptidsmatare, vardetext, yrkespanel %}
+{% block titel %}Consens — Avtal{% endblock %}
+{% block innehall %}
+
+<section class="sidhuvud bred sidhuvud-rad">
+  <h1>Avtal</h1>
+  <p><b>{{ "{:,}".format(totalt_avtal).replace(",", " ") }} avtal</b>{% if antal_sidor > 1 %} · sida {{ sida }} av {{ antal_sidor }}{% endif %}</p>
+</section>
+
+<form class="filterrad bred" method="get" aria-label="Filter">
+  <div class="sokfalt">
+    <input type="search" name="q" value="{{ valda.get('q','') }}"
+           placeholder="Sök avtal, köpare eller leverantör…" aria-label="Sökord">
+  </div>
+  <div class="sokfalt smal">
+    <input type="search" name="leverantor" value="{{ valda.get('leverantor','') }}"
+           placeholder="Filtrera på leverantör…" aria-label="Leverantör">
+  </div>
+  {{ yrkespanel(yrkeskategorier, valda.getlist('yrke')) }}
+  <button class="tillampa-rad" type="submit">Tillämpa</button>
+  <span class="sortera-valj"><label>Sortera
+    <select name="sortera" onchange="const u=new URL(location);u.searchParams.set('sortera',this.value);u.searchParams.delete('sida');location.assign(u.toString())">
+      {% for v, n in [('utgang','Utgång närmast'), ('varde','Högst värde'), ('nyast','Senast tillagda'), ('titel','Titel A–Ö')] %}
+      <option value="{{ v }}" {% if valda.get('sortera', 'utgang') == v %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select></label></span>
+
+</form>
+
+<main class="tabell bred">
+  <div class="tab-rubrik" aria-hidden="true">
+    <span>Avtal</span><span>Leverantör</span><span>Värde</span><span>Anbud</span><span>Utgång</span>
+  </div>
+  {% for a in avtal %}
+  <article class="avtal-rad">
+    <div class="avtal-huvud">
+      <span class="avtal-titel">{{ a.titel }}
+        <a class="kopare" href="{% if a.orgnr %}{{ url_for('flode.organisation', orgnr=a.orgnr) }}{% else %}{{ url_for('flode.organisation_id', oid=a.organisation_id) }}{% endif %}">{{ a.org_namn }} · {{ a.org_lan or '—' }}</a>
+      </span>
+      {% if a.titel|formedling %}<span class="minitagg" title="Köparen upphandlar en mäklare, inte utförarna. Vägen in går via mäklarens nätverk.">Förmedlingsavtal</span>{% endif %}
+      <span class="avtal-lev">{% for d in a.leverantor|leverantorsdelar %}<a href="{{ url_for('leverantorer.lista') }}?sok=1&amp;q={{ d|urlencode }}">{{ d }}</a>{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}</span>
+      <span class="avtal-varde">{{ vardetext(a.varde, a.varde_sort) }}</span>
+      <span class="avtal-anbud {% if a.antal_anbud and a.antal_anbud <= 2 %}fa{% endif %}">{{ a.antal_anbud or '—' }}</span>
+      <span class="avtal-utgang">{{ loptidsmatare(none, a.slutdatum, a.man_kvar, a.procent) }}</span>
+    </div>
+    <form class="kortfot avtal-spara" method="post"
+          action="{{ url_for('flode.spara_avtal', avtal_id=a.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="nasta" value="{{ request.full_path }}">
+      <button class="spara-ikon {% if a.id in sparade_avtal %}sparad{% endif %}" type="submit"
+              aria-label="Spara avtal" title="{% if a.id in sparade_avtal %}Sparat{% else %}Spara{% endif %}">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 3h12v18l-6-5-6 5z"/></svg>
+      </button>
+    </form>
+  </article>
+  {% else %}
+  <p class="tomt">Inga avtal matchar filtren.</p>
+  {% endfor %}
+</main>
+
+{% if antal_sidor > 1 %}
+<nav class="paginering">
+  {% if sida > 1 %}<a href="?{{ avtal_qs }}&amp;sida={{ sida - 1 }}">← Föregående</a>{% endif %}
+  <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+  {% if sida < antal_sidor %}<a href="?{{ avtal_qs }}&amp;sida={{ sida + 1 }}">Nästa →</a>{% endif %}
+</nav>
+{% endif %}
+{% if antal_sidor > 1 %}
+<nav class="paginering">
+  {% if sida > 1 %}<a href="?{{ avtal_qs }}&amp;sida={{ sida - 1 }}">← Föregående</a>{% endif %}
+  <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+  {% if sida < antal_sidor %}<a href="?{{ avtal_qs }}&amp;sida={{ sida + 1 }}">Nästa →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

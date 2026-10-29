@@ -1,0 +1,217 @@
+{% extends "bas.html" %}
+{% from "bas.html" import loptidsmatare, vardetext %}
+{% block titel %}Consens — {{ org.namn }}{% endblock %}
+{% block innehall %}
+
+<main class="orgsida">
+  <a class="tillbaka" href="{{ url_for('flode.organisationer') }}">← Alla organisationer</a>
+
+  <div class="org-huvud">
+    <div>
+      <h1>{{ org.namn }}</h1>
+      <div class="meta">
+        <span class="kontotyp kt-{{ org.kontotyp }}">{{ kontotyper[org.kontotyp] }}</span>
+        {% if org.orgnr %}<span>{{ org.orgnr }}</span>{% endif %}
+        {% if org.lan %}<span>·</span><span>{{ org.lan }}</span>{% endif %}
+        {% if org.webbplats %}<span>·</span><a href="{{ org.webbplats }}">{{ org.webbplats.replace('https://','') }}</a>{% endif %}
+        {% if g.anvandare and g.anvandare.roll == 'admin' %}<span>·</span><a href="{{ url_for('admin.redigera_organisation', oid=org.id) }}">Redigera</a>{% endif %}
+      </div>
+      <div class="meta" style="margin-top:0.5rem">
+        {% if bevakar %}
+        <span class="lage lage-lag">Bevakas ✓</span>
+        <span class="liten">Nya signaler från organisationen kommer i din digest.</span>
+        {% else %}
+        <form method="post" action="{{ url_for('flode.bevakning_spara') }}" style="margin:0">
+          <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+          <input type="hidden" name="namn" value="{{ org.namn }}">
+          <input type="hidden" name="params" value="org={{ orgparam }}">
+          <button type="submit" class="knapp">Bevaka organisationen</button>
+        </form>
+        {% endif %}
+      </div>
+      {% if arshjul %}
+  <section class="panel">
+    <h2>När avtalen löper ut</h2>
+    <p class="liten">{{ arshjul.totalt }} avtal löper ut inom två år{% if arshjul.varde %},
+    till ett samlat värde om ca {{ "{:,.0f}".format(arshjul.varde / 1000000).replace(",", " ") }} mnkr{% endif %}.
+    Varje stapel är en månad. Höga staplar betyder att flera upphandlingar
+    startar samtidigt, och att kontakten bör tas i god tid innan.</p>
+    <div class="arshjul">
+      {% for r in arshjul.rutor %}
+      <div class="hjul-manad{% if r.antal %} har-avtal{% endif %}"
+           title="{{ r.ar }}-{{ '%02d' % r.manad }}: {{ r.antal }} avtal{% if r.avtal %} ({{ r.avtal|join(', ') }}{% if r.antal > r.avtal|length %} med flera{% endif %}){% endif %}">
+        <div class="hjul-stapel"><div class="hjul-fyll" style="height:{{ r.hojd }}%"></div></div>
+        {% if r.antal %}<span class="hjul-antal">{{ r.antal }}</span>{% endif %}
+        <span class="hjul-etikett">{% if r.manad == 1 or loop.first %}{{ r.ar }}{% endif %}</span>
+        <span class="hjul-man">{{ ['J','F','M','A','M','J','J','A','S','O','N','D'][r.manad - 1] }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if nyckeltal %}
+      <div class="meta nyckeltalsrad">
+        {% for n in nyckeltal %}
+        <span title="Källa: Kolada (RKA), {{ n.ar }}">{{ n.etikett }}:
+          {{ "{:,.0f}".format(n.varde).replace(",", " ") }}</span>
+        {% if not loop.last %}<span>·</span>{% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% set utgangar12 = avtal | selectattr('man_kvar', 'ne', none) | selectattr('man_kvar', 'le', 12) | list %}
+  <div class="statrad">
+    <div class="stat"><div class="tal">{{ upphandlingar|length }}</div><div class="etikett">Upphandlingar ute nu</div></div>
+    <div class="stat"><div class="tal {% if utgangar12 %}varning{% endif %}">{{ utgangar12|length }}</div><div class="etikett">Avtalsutgångar inom 12 mån</div></div>
+    <div class="stat"><div class="tal">{{ avtal|length }}</div><div class="etikett">Kända avtal totalt</div></div>
+  </div>
+
+  <p class="org-export">
+    <a class="rapportlank" href="{{ url_for('flode.organisation_rapport', oid=org.id) }}">⤓ Ladda ner köparprofil (Word)</a>
+    <a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=xlsx">Exportera Excel</a>
+    <a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=pdf">Exportera PDF</a>
+  </p>
+
+  <details class="org-sektion">
+  <summary><h2>Aktuella upphandlingar <span class="antal-h">{{ upphandlingar|length }} st</span></h2></summary>
+  <p class="org-export"><a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=xlsx&amp;del=upphandlingar">Excel</a>
+     <a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=pdf&amp;del=upphandlingar">PDF</a></p>
+  {% for u in upphandlingar %}
+  <div class="minikort">
+    <div class="metadata">
+      <span class="tagg tagg-upphandling">Upphandling</span>
+      <span class="kalla">Källa: {{ u.kalla|kallnamn }}</span>
+      {% if u.deadline %}<span class="datum">Sista anbudsdag {{ u.deadline }}</span>{% endif %}
+    </div>
+    <h3><button type="button" class="titel-toggle" data-mal="orgdetalj-s{{ u.id }}">{{ u.titel }}</button></h3>
+    <p class="detalj"><b>{{ vardetext(u.varde, u.varde_sort) }}</b>{% if u.cpv %} · CPV {{ u.cpv }}{% endif %}</p>
+    <div class="signal-detalj" id="orgdetalj-s{{ u.id }}" hidden>
+      <dl class="detalj-dl">{% for k, v in u.extra.items() if k != 'Beskrivning' %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+      {% if u.extra.get('Beskrivning') %}<p class="detalj-beskrivning">{{ u.extra['Beskrivning'] }}</p>{% endif %}
+      <div class="detalj-lankar">
+        {% if u.url %}<a href="{{ u.url }}" target="_blank" rel="noopener">Öppna hos källan ↗</a>{% endif %}
+        <a href="{{ url_for('flode.signal_pdf', signal_id=u.id) }}">Ladda ner PDF</a>
+      </div>
+    </div>
+    <form class="kortfot" method="post" action="{{ url_for('flode.spara_signal', signal_id=u.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="nasta" value="{{ request.path }}">
+      <button class="spara-ikon {% if u.id in sparade %}sparad{% endif %}" type="submit" aria-label="Spara"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 3h12v18l-6-5-6 5z"/></svg></button>
+    </form>
+  </div>
+  {% else %}
+  <p class="tomt">Inga aktuella upphandlingar.</p>
+  {% endfor %}
+  </details>
+
+  {% if tidigare_upphandlingar %}
+  <details class="org-sektion">
+  <summary><h2>Tidigare upphandlingar <span class="antal-h">{{ tidigare_upphandlingar|length }} st</span></h2></summary>
+  {% for u in tidigare_upphandlingar %}
+  <article class="orgpost">
+    <h3><button type="button" class="titel-toggle" data-mal="orgdetalj-s{{ u.id }}">{{ u.titel }}</button></h3>
+    <p class="liten">Deadline {{ u.deadline or "okänd" }} · Källa: {{ u.kalla|kallnamn }}</p>
+    <div class="signal-detalj" id="orgdetalj-s{{ u.id }}" hidden>
+      <dl class="detalj-dl">{% for k, v in u.extra.items() if k != 'Beskrivning' %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+      {% if u.extra.get('Beskrivning') %}<p class="detalj-beskrivning">{{ u.extra['Beskrivning'] }}</p>{% endif %}
+      <div class="detalj-lankar">
+        {% if u.url %}<a href="{{ u.url }}" target="_blank" rel="noopener">Öppna hos källan ↗</a>{% endif %}
+        <a href="{{ url_for('flode.signal_pdf', signal_id=u.id) }}">Ladda ner PDF</a>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+  </details>
+  {% endif %}
+
+  <details class="org-sektion">
+  <summary><h2>Avtal <span class="antal-h">{{ avtal|length }} st aktiva, närmast utgång först</span></h2></summary>
+  <p class="org-export"><a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=xlsx&amp;del=avtal">Excel</a>
+     <a class="las-mer" href="{{ url_for('flode.organisation_export', oid=org.id) }}?format=pdf&amp;del=avtal">PDF</a></p>
+  {% for a in avtal %}
+  <div class="minikort">
+    <div class="metadata">
+      <span class="tagg tagg-utgang">Avtalsutgång</span>
+      <span class="kalla">Källa: {{ a.kalla|kallnamn }}</span>
+    </div>
+    <h3><button type="button" class="titel-toggle" data-mal="orgdetalj-a{{ a.id }}">{{ a.titel }}</button></h3>
+    <p class="detalj">
+      {% if a.leverantor %}Leverantör: <b>{{ a.leverantor }}</b> · {% endif %}
+      <b>{{ vardetext(a.varde, a.varde_sort) }}</b>
+      {% if a.antal_anbud %} · {{ a.antal_anbud }} anbud{% endif %}
+    </p>
+    {{ loptidsmatare(a.startdatum, a.slutdatum, a.man_kvar, a.procent) }}
+    <div class="signal-detalj" id="orgdetalj-a{{ a.id }}" hidden>
+      <dl class="detalj-dl">{% for k, v in a.extra.items() %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+      <div class="detalj-lankar">
+        {% if a.url %}<a href="{{ a.url }}" target="_blank" rel="noopener">Öppna hos källan ↗</a>{% endif %}
+        {% if a.id in utgangssignaler %}<a href="{{ url_for('flode.signal_pdf', signal_id=utgangssignaler[a.id]) }}">Ladda ner PDF</a>{% endif %}
+      </div>
+    </div>
+    <form class="kortfot" method="post" action="{{ url_for('flode.spara_avtal', avtal_id=a.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="nasta" value="{{ request.path }}">
+      <button class="spara-ikon {% if a.id in sparade_avtal %}sparad{% endif %}" type="submit" aria-label="Spara avtal"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 3h12v18l-6-5-6 5z"/></svg></button>
+    </form>
+  </div>
+  {% else %}
+  <p class="tomt">Inga aktiva avtal.</p>
+  {% endfor %}
+  </details>
+
+  {% if utgangna_avtal %}
+  <details class="org-sektion">
+  <summary><h2>Utgångna avtal <span class="antal-h">{{ utgangna_avtal|length }} st</span></h2></summary>
+  {% for a in utgangna_avtal %}
+  <article class="orgpost">
+    <h3><button type="button" class="titel-toggle" data-mal="orgdetalj-a{{ a.id }}">{{ a.titel }}</button></h3>
+    <p class="liten">Gick ut {{ a.slutdatum }}{% if a.leverantor %} · {{ a.leverantor }}{% endif %} · Källa: {{ a.kalla|kallnamn }}</p>
+    <div class="signal-detalj" id="orgdetalj-a{{ a.id }}" hidden>
+      <dl class="detalj-dl">{% for k, v in a.extra.items() %}<dt>{{ k }}</dt><dd>{{ v }}</dd>{% endfor %}</dl>
+      {% if a.url %}<div class="detalj-lankar"><a href="{{ a.url }}" target="_blank" rel="noopener">Öppna hos källan ↗</a></div>{% endif %}
+    </div>
+  </article>
+  {% endfor %}
+  </details>
+  {% endif %}
+
+  {% if nyckelpersoner %}
+  <details class="org-sektion">
+  <summary><h2>Nyckelpersoner <span class="antal-h">{{ nyckelpersoner|length }} st</span></h2></summary>
+  {% for np in nyckelpersoner %}
+  <div class="minikort nyckelperson">
+    <h3>{{ np.namn }}</h3>
+    <p class="detalj">{{ np.titel or '' }}
+      {% if np.epost %} · <a href="mailto:{{ np.epost }}">{{ np.epost }}</a>{% endif %}
+      {% if np.telefon %} · {{ np.telefon }}{% endif %}</p>
+  </div>
+  {% endfor %}
+  </details>
+  {% endif %}
+
+  {% if inkop %}
+  <section class="panel inkopsmonster">
+    <h2>Inköpsmönster {{ inkop.ar }} <span class="antal-h">ur kommunens öppna
+      leverantörsreskontra</span></h2>
+    <div class="statrad {% if inkop.andel_avtal is not none %}statrad-4{% endif %}">
+      <div class="stat"><div class="tal">{{ "{:,.0f}".format(inkop.belopp / 1000000).replace(",", " ") }}</div><div class="etikett">mnkr i inköp totalt</div></div>
+      <div class="stat"><div class="tal">{{ "{:,}".format(inkop.antal).replace(",", " ") }}</div><div class="etikett">leverantörsfakturor</div></div>
+      <div class="stat"><div class="tal">{{ inkop.antal_leverantorer }}</div><div class="etikett">leverantörer</div></div>
+      {% if inkop.andel_avtal is not none %}<div class="stat"><div class="tal">{{ inkop.andel_avtal }} %</div><div class="etikett">via ramavtal eller upphandling</div></div>{% endif %}
+    </div>
+    <h3 class="inkop-rubrik">Största leverantörerna</h3>
+    {% for r in inkop.rader %}
+    <div class="inkop-rad">
+      <span class="inkop-namn">{{ r.leverantor }}</span>
+      <span class="inkop-belopp">{{ "%.1f"|format(r.belopp / 1000000)|replace(".", ",") }} mnkr</span>
+      <span class="inkop-antal liten">{{ r.antal }} fakturor</span>
+    </div>
+    {% endfor %}
+    <p class="liten">Aggregerat ur öppna data (leverantörsreskontra) som
+    organisationen själv publicerat. Belopp exklusive moms.</p>
+  </section>
+  {% endif %}
+</main>
+
+{% endblock %}

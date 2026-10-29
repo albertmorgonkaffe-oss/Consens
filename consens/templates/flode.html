@@ -1,0 +1,333 @@
+{% extends "bas.html" %}
+{% from "bas.html" import loptidsmatare, vardetext, yrkespanel %}
+{% block titel %}Consens — Flödet{% endblock %}
+{% block innehall %}
+
+<section class="sidhuvud sidhuvud-rad">
+  <h1>Flödet</h1>
+  <p><b>{{ "{:,}".format(totalt).replace(",", " ") }} träffar</b>{% if antal_sidor > 1 %} · sida {{ sida }} av {{ antal_sidor }}{% endif %}</p>
+</section>
+
+<form class="filterrad" method="get" aria-label="Filter" id="flodesfilter">
+  <div class="sokfalt">
+    <input type="search" name="q" value="{{ valda.get('q','') }}"
+           placeholder="Sök upphandlingar och avtal…" aria-label="Sökord">
+  </div>
+
+  <details class="multiselect">
+    <summary class="ms-toggle {% if filterantal['typ'] %}aktiv{% endif %}">Typ
+      {% if filterantal['typ'] %}<span class="antal">{{ filterantal['typ'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel">
+      <label><input type="checkbox" name="typ" value="planerad" class="typ-val"
+        {% if 'planerad' in valda.getlist('typ') %}checked{% endif %}> Planerad upphandling</label>
+      <label><input type="checkbox" name="typ" value="avtalsutgang" class="typ-val"
+        {% if 'avtalsutgang' in valda.getlist('typ') %}checked{% endif %}> Avtalsutgång</label>
+      <label><input type="checkbox" name="typ" value="upphandling" class="typ-val"
+        {% if 'upphandling' in valda.getlist('typ') %}checked{% endif %}> Upphandling</label>
+    </div>
+  </details>
+
+  <details class="multiselect">
+    <summary class="ms-toggle {% if filterantal['bransch'] %}aktiv{% endif %}">Bransch
+      {% if filterantal['bransch'] %}<span class="antal">{{ filterantal['bransch'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel"><div class="lista">
+      {% for b in branscher %}
+      <label><input type="checkbox" name="bransch" value="{{ b }}"
+        {% if b in valda.getlist('bransch') %}checked{% endif %}> {{ b }}</label>
+      {% endfor %}
+    </div></div>
+  </details>
+
+  {{ yrkespanel(yrkeskategorier, valda.getlist('yrke')) }}
+
+  <details class="multiselect">
+    <summary class="ms-toggle {% if filterantal['kontotyp'] %}aktiv{% endif %}">Organisationstyp
+      {% if filterantal['kontotyp'] %}<span class="antal">{{ filterantal['kontotyp'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel">
+      {% for varde, namn in kontotyper.items() %}
+      <label><input type="checkbox" name="kontotyp" value="{{ varde }}"
+        {% if varde in valda.getlist('kontotyp') %}checked{% endif %}> {{ namn }}</label>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details class="multiselect">
+    <summary class="ms-toggle {% if filterantal['lan'] %}aktiv{% endif %}">Län
+      {% if filterantal['lan'] %}<span class="antal">{{ filterantal['lan'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel"><div class="lista">
+      {% for l in alla_lan %}
+      <label><input type="checkbox" name="lan" value="{{ l }}"
+        {% if l in valda.getlist('lan') %}checked{% endif %}> {{ l }}</label>
+      {% endfor %}
+    </div></div>
+  </details>
+
+  <details class="multiselect" id="filter-deadline"
+           {% if not visa_deadline %}hidden{% endif %}>
+    <summary class="ms-toggle {% if filterantal['deadline'] %}aktiv{% endif %}">Tid till deadline
+      {% if filterantal['deadline'] %}<span class="antal">{{ filterantal['deadline'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel">
+      {% for varde, etikett in deadline_etiketter.items() %}
+      <label><input type="checkbox" name="deadline" value="{{ varde }}"
+        {% if varde in valda.getlist('deadline') %}checked{% endif %}> {{ etikett }}</label>
+      {% endfor %}
+    </div>
+  </details>
+
+  <details class="multiselect" id="filter-utgang"
+           {% if not visa_utgang %}hidden{% endif %}>
+    <summary class="ms-toggle {% if filterantal['utgang'] %}aktiv{% endif %}">Tid till avtalsutgång
+      {% if filterantal['utgang'] %}<span class="antal">{{ filterantal['utgang'] }}</span>{% endif %}
+      <span class="pil">▾</span></summary>
+    <div class="ms-panel">
+      {% for varde, etikett in utgang_etiketter.items() %}
+      <label><input type="checkbox" name="utgang" value="{{ varde }}"
+        {% if varde in valda.getlist('utgang') %}checked{% endif %}> {{ etikett }}</label>
+      {% endfor %}
+    </div>
+  </details>
+
+  <span class="sortera-valj">
+    {% if mina_bevakningar %}
+    <select aria-label="Mina bevakningar"
+            onchange="if(this.value){location='{{ url_for('flode.flodet') }}?'+this.value}">
+      <option value="">Mina bevakningar…</option>
+      {% for b in mina_bevakningar %}<option value="{{ b.params }}">{{ b.namn }}</option>{% endfor %}
+    </select>
+    {% endif %}
+    <label>Sortera
+    <select name="sortera" onchange="const u=new URL(location);u.searchParams.set('sortera',this.value);u.searchParams.delete('sida');location.assign(u.toString())">
+      {% for v, n in [('blandat','Blandat urval'), ('nyast','Nyast hos oss'), ('publicerad','Nyast hos källan'), ('aldst','Äldst först'),
+                      ('deadline','Deadline närmast'), ('varde','Högst värde')] %}
+      <option value="{{ v }}" {% if valda.get('sortera', 'blandat') == v %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select></label>
+  </span>
+  <button class="tillampa-rad" type="submit">Tillämpa</button>
+
+  {% if fakta %}<p class="bevakning-hint" id="dagensfakta" hidden>💡 {{ fakta }}
+    <button class="stang" type="button" id="dagensfakta-stang" aria-label="Dölj för i dag">✕</button></p>{% endif %}
+  {% if valda.getlist('org') %}
+<p class="liten">Visar endast signaler från vald organisation.
+  <a href="?{{ bas_qs.replace('org=', 'borttagen=') }}">Visa alla</a></p>
+{% endif %}
+{% if har_filter %}
+  <a class="nollstall" href="{{ url_for('flode.flodet') }}">Nollställ alla filter</a>
+  {% endif %}
+</form>
+
+{% if har_filter %}
+<form class="spara-form" method="post" action="{{ url_for('flode.bevakning_spara') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+  <input type="hidden" name="params" value="{{ querystring }}">
+  <input type="text" name="namn" placeholder="Namn på bevakningen…" required>
+  <button class="knapp-sekundar liten-knapp" type="submit">Spara som bevakning</button>
+</form>
+{% endif %}
+
+<main class="flode">
+  {% for s in signaler %}
+  <article class="signal-card typ-{{ s.typ }}">
+    <div class="metadata">
+      {% if s.typ == 'planerad' %}
+      <span class="tagg tagg-planerad">Planerad upphandling</span>
+      {% elif s.typ == 'avtalsutgang' %}
+      <span class="tagg tagg-utgang">Avtalsutgång</span>
+      {% else %}
+      <span class="tagg tagg-upphandling">Upphandling</span>
+      {% endif %}
+      {% if s.passerad %}<span class="tagg tagg-passerad">{% if s.typ == 'avtalsutgang' %}Utgången{% else %}Passerad{% endif %}</span>{% endif %}
+      {% if s.prioritet == 'hog' and not s.passerad %}<span class="tagg tagg-prio">Hög prioritet</span>{% endif %}
+      <span class="kalla">Källa: {{ s.kalla|kallnamn }}</span>
+      <span class="kalla">C-{{ '%06d' % s.id }}</span>
+      <span class="datum">I Consens {{ s.upptackt }}</span>
+      <form class="spara-ikon-form" method="post"
+            action="{{ url_for('flode.spara_signal', signal_id=s.id) }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+        <input type="hidden" name="nasta" value="{{ request.full_path }}">
+        <button class="spara-ikon {% if s.id in sparade %}sparad{% endif %}" type="submit"
+                aria-label="{% if s.id in sparade %}Ta bort sparning{% else %}Spara{% endif %}"
+                title="{% if s.id in sparade %}Sparad, klicka för att ta bort{% else %}Spara{% endif %}">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 3h12v18l-6-5-6 5z"/></svg>
+        </button>
+      </form>
+    </div>
+    <h2><button type="button" class="titel-toggle" data-mal="detalj-{{ s.id }}"
+        data-klick="{{ url_for('flode.klick', signal_id=s.id) }}">{{ s.titel }}</button></h2>
+    <p class="sammanfattning">
+      {% if s.sammanfattning %}{{ s.sammanfattning }} {% endif %}
+      {% if s.varde %}Värde: <b>{{ vardetext(s.varde, s.varde_sort) }}</b>{% endif %}
+      {% if s.typ == 'upphandling' and s.deadline %} · Sista anbudsdag <b>{{ s.deadline }}</b>{% if s.passerad %} (passerad){% endif %}{% endif %}
+      {% if s.typ == 'planerad' %} · Planerad start <b>{{ s.deadline|kvartal or "ej angiven" }}</b>{% endif %}
+    </p>
+    {% if s.typ == 'avtalsutgang' %}
+      {{ loptidsmatare(s.startdatum, s.slutdatum, s.man_kvar, s.procent) }}
+    {% endif %}
+    {% if s.titel|formedling %}
+    <p class="formedlingsnot"><b>Förmedlingsavtal.</b> Köparen upphandlar en
+    mäklare, inte utförarna. Vägen in går via mäklarens nätverk, så det
+    gäller att finnas där innan uppdragen börjar komma.</p>
+    {% endif %}
+    <div class="chips">
+      <a class="chip chip-lank" href="{% if s.orgnr %}{{ url_for('flode.organisation', orgnr=s.orgnr) }}{% else %}{{ url_for('flode.organisation_id', oid=s.organisation_id) }}{% endif %}">{{ s.org_namn }} →</a>
+      {% if s.yrken %}{% for y in s.yrken.split('|')[:3] %}<span class="chip chip-yrke">{{ y }}</span>{% endfor %}{% endif %}
+      {% if s.cpv %}<span class="chip">CPV {{ s.cpv }}</span>{% endif %}
+      {% if s.lan %}<span class="chip">{{ s.lan }}</span>{% endif %}
+    </div>
+    <div class="kortfot">
+      <button type="button" class="las-mer" data-mal="detalj-{{ s.id }}"
+              aria-expanded="false">Läs mer</button>
+    </div>
+    <div class="signal-detalj" id="detalj-{{ s.id }}" hidden>
+      <div class="detalj-tva">
+      <div class="detalj-fakta">
+        <h4 class="detalj-rubrik">Generell information</h4>
+        <dl>
+          <dt>Referens</dt><dd>C-{{ '%06d' % s.id }}</dd>
+          <dt>Organisation</dt><dd><a href="{{ url_for('flode.organisation', orgnr=s.orgnr) if s.orgnr else url_for('flode.organisation_id', oid=s.organisation_id) }}">{{ s.org_namn }}</a>{% if s.orgnr %} ({{ s.orgnr }}){% endif %}</dd>
+          <dt>Typ</dt><dd>{% if s.typ == 'avtalsutgang' %}Avtal som löper ut{% elif s.typ == 'planerad' %}Planerad upphandling{% else %}Pågående upphandling{% endif %}</dd>
+          {% if s.varde %}<dt>Värde</dt><dd>{{ vardetext(s.varde, s.varde_sort) }}</dd>{% endif %}
+          {% if s.typ == 'avtalsutgang' %}
+            {% if s.leverantor %}<dt>Nuvarande leverantör</dt>
+            <dd>{% for d in s.leverantor|leverantorsdelar %}{{ d }}{% if not loop.last %}, {% endif %}{% endfor %}{% if s.leverantor_orgnr %} ({{ s.leverantor_orgnr }}){% endif %}</dd>{% endif %}
+            {% if s.antal_anbud is not none %}<dt>Anbud i ursprunglig upphandling</dt>
+            <dd>{{ s.antal_anbud }}{% if s.antal_anbud <= 2 %}, svag konkurrens{% endif %}</dd>{% endif %}
+          {% endif %}
+          {% set br = s.cpv|bransch %}
+          {% if br %}<dt>Bransch</dt><dd><a href="?bransch={{ br|urlencode }}">{{ br }}</a></dd>{% endif %}
+          {% if s.cpv %}<dt>CPV</dt><dd>{{ s.cpv }}</dd>{% endif %}
+          {% if s.yrken %}<dt>Tjänsteområden</dt><dd>
+            {% for y in s.yrken.split('|') %}<a href="?yrke={{ y|urlencode }}">{{ y }}</a>{% if not loop.last %}, {% endif %}{% endfor %}
+            </dd>{% endif %}
+          {% if s.lan %}<dt>Län</dt><dd><a href="?lan={{ s.lan|urlencode }}">{{ s.lan }}</a></dd>{% endif %}
+          <dt>Källa</dt><dd>{{ s.kalla|kallnamn }}</dd>
+          {% for k, v in s.extra.items() if k not in ('Beskrivning', 'Källa', 'Underlag', 'Anbud lämnas', 'Kontakt') %}
+          <dt>{{ k }}</dt><dd>{{ v }}</dd>
+          {% endfor %}
+        </dl>
+        {% set ik = inkopskoppling.get(s.id) if inkopskoppling is defined else none %}
+        {% if ik %}<p class="detalj-inkop">Enligt organisationens öppna
+        leverantörsreskontra har ca
+        {{ "%.1f"|format(ik.belopp / 1000000)|replace(".", ",") }} mnkr
+        fakturerats av {{ ik.leverantor }} under
+        {{ ik.ar_min }}{% if ik.ar_max != ik.ar_min %} till {{ ik.ar_max }}{% endif %}
+        ({{ ik.antal }} fakturor).</p>{% endif %}
+        {% if s.extra.get('Beskrivning') %}
+        <p class="detalj-beskrivning">{{ s.extra['Beskrivning'] }}</p>
+        {% endif %}
+      </div>
+
+      <aside class="detalj-tid">
+        {% if s.typ == 'upphandling' and s.deadline %}
+        <div class="tid-lage {% if s.passerad %}tid-passerad{% else %}tid-oppen{% endif %}">
+          <b>{% if s.passerad %}Anbudstiden har passerat{% else %}Öppen för anbud{% endif %}</b>
+          {% if not s.passerad and s.dagar_kvar is defined and s.dagar_kvar is not none %}
+          <span>{{ s.dagar_kvar }} dagar kvar</span>{% endif %}
+        </div>
+        {% elif s.typ == 'avtalsutgang' %}
+        <div class="tid-lage tid-utgang">
+          <b>Avtalet löper ut</b>
+          {% if s.man_kvar is not none %}<span>{{ s.man_kvar }} månader kvar</span>{% endif %}
+        </div>
+        {% elif s.typ == 'planerad' %}
+        <div class="tid-lage tid-planerad">
+          <b>Planerad, ej annonserad</b>
+          <span>Kravbilden går ofta att påverka i det här skedet</span>
+        </div>
+        {% endif %}
+        <h4 class="detalj-rubrik">Viktiga datum</h4>
+        <ol class="tidslinje">
+          {% if s.upptackt %}<li><span class="tid-datum">{{ s.upptackt }}</span>
+            <span class="tid-text">Inlagd i Consens</span></li>{% endif %}
+          {% if s.publicerad %}<li><span class="tid-datum">{{ s.publicerad }}</span>
+            <span class="tid-text">Publicerad hos källan</span></li>{% endif %}
+          {% if s.typ == 'upphandling' and s.deadline %}
+          <li class="tid-viktig"><span class="tid-datum">{{ s.deadline }}</span>
+            <span class="tid-text">Sista anbudsdag</span></li>{% endif %}
+          {% if s.typ == 'planerad' and s.deadline %}
+          <li class="tid-viktig"><span class="tid-datum">{{ s.deadline|kvartal }}</span>
+            <span class="tid-text">Planerad start av upphandling</span></li>{% endif %}
+          {% if s.startdatum %}<li><span class="tid-datum">{{ s.startdatum }}</span>
+            <span class="tid-text">Avtalet började gälla</span></li>{% endif %}
+          {% if s.slutdatum %}<li class="tid-viktig"><span class="tid-datum">{{ s.slutdatum }}</span>
+            <span class="tid-text">Avtalet löper ut</span></li>{% endif %}
+        </ol>
+      </aside>
+      </div>
+      {% if s.typ != 'planerad' %}
+      <details class="underlag">
+        <summary>Hämta förfrågningsunderlaget</summary>
+        <p class="liten">Kravspecifikation, utvärderingsmodell och
+        avtalsvillkor är allmänna handlingar. Knappen tar dig till rätt
+        upphandling i köparens system, men de flesta system (TendSign,
+        e-Avrop, Kommers) kräver ett kostnadsfritt konto för att
+        dokumenten ska gå att ladda ner. Vill du slippa det, eller har
+        anbudstiden gått ut, begär du i stället ut handlingarna av
+        köparen. Myndigheten är skyldig att lämna ut dem oavsett system.
+        Texten nedan är färdig att skicka.</p>
+        <div class="underlag-knappar">
+          {% if s.extra.get('Underlag') %}<a class="knapp-liten knapp-liten-primar" href="{{ s.extra['Underlag'] }}" target="_blank" rel="noopener">Underlaget hos köparen ↗</a>{% endif %}
+          {% if s.extra.get('Anbud lämnas') %}<a class="knapp-liten" href="{{ s.extra['Anbud lämnas'] }}" target="_blank" rel="noopener">Lämna anbud ↗</a>{% endif %}
+          {% if s.url %}<a class="knapp-liten" href="{{ s.url }}" target="_blank" rel="noopener">{% if s.typ == 'avtalsutgang' %}Tilldelningsannonsen{% else %}Annonsen{% endif %} hos källan ↗</a>{% endif %}
+          {% set mottagare = s.extra.get('Kontakt') or s.org_webbplats|registrator %}
+          <a class="knapp-liten" href="mailto:{{ mottagare }}?subject={{ ('Begäran om utlämnande av allmän handling: ' ~ s.titel)|urlencode }}&amp;body={{ (s|begaran)|urlencode }}">Begär ut underlaget från {{ s.org_namn }} ✉</a>
+        </div>
+        <details class="begaran-utfall">
+          <summary>Visa texten i begäran</summary>
+          <p class="liten">Mejlknappen ovan öppnar din e-post med texten ifylld.
+          {% if s.extra.get('Kontakt') %}Adressen <b>{{ s.extra['Kontakt'] }}</b>
+          är köparens egen kontaktadress för upphandlingen, hämtad ur annonsen.
+          {% elif s.org_webbplats|registrator %}Annonsen saknar kontaktadress, så
+          knappen använder <b>{{ s.org_webbplats|registrator }}</b>, den vanliga
+          formen hos svenska myndigheter. Kontrollera den gärna på
+          <a href="{{ s.org_webbplats }}" target="_blank" rel="noopener">{{ s.org_namn }}s webbplats ↗</a>
+          innan du skickar.{% else %}Fyll i köparens registratorsadress själv.{% endif %}</p>
+          <textarea id="begaran-{{ s.id }}" class="begaran-text" rows="9" readonly>{{ s|begaran }}</textarea>
+          <button type="button" class="knapp-liten"
+                  onclick="const t=document.getElementById('begaran-{{ s.id }}');t.select();document.execCommand('copy');this.textContent='Kopierat ✓'">Kopiera texten</button>
+        </details>
+      </details>
+      {% endif %}
+      <div class="detalj-lankar">
+        {% if s.typ == 'planerad' and s.url %}<a href="{{ s.url }}" target="_blank" rel="noopener">Öppna hos källan ↗</a>{% endif %}
+        <a href="{{ url_for('flode.signal_pdf', signal_id=s.id) }}">Ladda ner signalen som PDF</a>
+      </div>
+    </div>
+  </article>
+  {% else %}
+  <p class="tomt">Inga träffar med de här filtren. Bredda urvalet eller
+  <a href="{{ url_for('flode.flodet') }}">nollställ alla filter</a>.</p>
+  {% endfor %}
+
+  {% if antal_sidor > 1 %}
+  <nav class="paginering" aria-label="Bläddra">
+    {% if sida > 1 %}<a href="?{{ bas_qs }}{% if bas_qs %}&amp;{% endif %}sida={{ sida - 1 }}">← Nyare</a>{% endif %}
+    <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+    {% if sida < antal_sidor %}<a href="?{{ bas_qs }}{% if bas_qs %}&amp;{% endif %}sida={{ sida + 1 }}">Äldre →</a>{% endif %}
+  </nav>
+  {% endif %}
+</main>
+
+<script>
+(function () {
+  var fakta = document.getElementById("dagensfakta");
+  if (!fakta) return;
+  var nu = new Date();
+  var idag = nu.getFullYear() + "-" +
+    String(nu.getMonth() + 1).padStart(2, "0") + "-" +
+    String(nu.getDate()).padStart(2, "0");
+  try {
+    if (localStorage.getItem("consens-fakta-dold") !== idag) fakta.hidden = false;
+  } catch (e) { fakta.hidden = false; }
+  var stang = document.getElementById("dagensfakta-stang");
+  if (stang) stang.addEventListener("click", function () {
+    fakta.hidden = true;
+    try { localStorage.setItem("consens-fakta-dold", idag); } catch (e) {}
+  });
+})();
+</script>
+
+{% endblock %}

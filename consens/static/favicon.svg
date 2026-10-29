@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .c { fill: #0B0D12; }
+    @media (prefers-color-scheme: dark) { .c { fill: #F2F4F8; } }
+  </style>
+  <text x="4" y="50" class="c" font-family="'Space Grotesk','Arial Black',Arial,sans-serif"
+        font-weight="700" font-size="52">C</text>
+  <circle cx="52" cy="46" r="7" fill="#1D5FDB"/>
+</svg>

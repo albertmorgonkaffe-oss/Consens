@@ -1,0 +1,18 @@
+{% extends "bas.html" %}
+{% block titel %}Consens — Admin{% endblock %}
+{% block innehall %}
+<section class="sidhuvud">
+  <h1>Körningshistorik</h1>
+  <p><b>{{ antal.signaler }}</b> signaler · <b>{{ antal.avtal }}</b> avtal · <b>{{ antal.organisationer }}</b> organisationer</p>
+</section>
+<main class="tabell">
+  <div class="tab-rubrik"><span>Källa</span><span>Startad</span><span>Nya</span><span>Dubbletter</span><span>Status</span></div>
+  {% for k in historik %}
+  <article class="avtal-rad"><div class="avtal-huvud">
+    <span>{{ k.kalla }}</span><span>{{ k.startad }}</span>
+    <span>{{ k.antal_nya }}</span><span>{{ k.antal_dubbletter }}</span>
+    <span>{% if k.status == 'fel' %}<b class="varning">fel: {{ k.fel }}</b>{% else %}{{ k.status }}{% endif %}</span>
+  </div></article>
+  {% else %}<p class="tomt">Inga körningar ännu.</p>{% endfor %}
+</main>
+{% endblock %}

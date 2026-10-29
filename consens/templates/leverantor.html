@@ -1,0 +1,75 @@
+{% extends "bas.html" %}
+{% block innehall %}
+<main class="sida">
+  <p class="liten"><a href="{{ url_for('leverantorer.lista') }}?sok=1">&larr; Leverantörer</a></p>
+  <div class="insikt-topp">
+    <h1>{{ lev.visning }}</h1>
+    <form method="post" action="{{ url_for('leverantorer.folj', slug=lev.slug) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button type="submit" class="knapp {% if foljer %}knapp-sekundar{% endif %}">
+        {% if foljer %}Följer ✓ · sluta följa{% else %}Följ leverantör{% endif %}</button>
+    </form>
+  </div>
+  {% if foljer %}<p class="liten">Du får en rad i din digest när ett av
+  leverantörens avtal närmar sig utgång eller när nya kontrakt upptäcks.</p>{% endif %}
+  <div class="meta">
+    {% if lev.orgnr %}<span>{{ lev.orgnr }}</span><span>·</span>{% endif %}
+    {% for br, n in branscher %}<span>{{ br }}</span>{% if not loop.last %}<span>·</span>{% endif %}{% endfor %}
+  </div>
+  <div class="statrad statrad-4">
+    <div class="stat"><div class="tal">{{ lev.avtal|length }}</div><div class="etikett">vunna kontrakt i registret</div></div>
+    <div class="stat"><div class="tal">{% if lev.varde %}{{ "{:,.0f}".format(lev.varde / 1000000).replace(",", " ") }}{% else %}–{% endif %}</div><div class="etikett">mnkr i kontraktsvärde</div></div>
+    <div class="stat"><div class="tal">{{ lev.orger|length }}</div><div class="etikett">offentliga kunder</div></div>
+    <div class="stat"><div class="tal">{{ lev.ramavtal|length }}</div><div class="etikett">ramavtalsplatser</div></div>
+  </div>
+  {% if inkop and inkop.b %}
+  <p class="panel">Enligt öppna leverantörsreskontror har offentliga
+  organisationer betalat <b>ca {{ "%.1f"|format(inkop.b / 1000000)|replace(".", ",") }} mnkr</b>
+  till leverantören ({{ inkop.a }} fakturor, {{ inkop.o }} organisationer,
+  {{ inkop.a1 }}{% if inkop.a2 != inkop.a1 %}–{{ inkop.a2 }}{% endif %}).</p>
+  {% endif %}
+
+  <form class="filterrad" method="get" aria-label="Filtrera avtalen">
+    <div class="sokfalt"><input type="search" name="fq" value="{{ valda.get('fq','') }}" placeholder="Filtrera på avtal eller kund…"></div>
+    <label class="endast-filter"><select name="fbransch">
+      <option value="">Alla branscher</option>
+      {% for b in alla_branscher %}
+      <option value="{{ b }}" {% if valda.get('fbransch') == b %}selected{% endif %}>{{ b }}</option>
+      {% endfor %}
+    </select></label>
+    <button class="tillampa-rad" type="submit">Filtrera</button>
+  </form>
+
+  <details class="utfall" {% if valda.get('fq') or valda.get('fbransch') %}open{% endif %}>
+    <summary>Avtal som löper ut ({{ kommande|length }})</summary>
+    {% for a in kommande %}
+    <div class="inkop-rad">
+      <span class="inkop-namn">{{ a.titel }} <span class="liten">· {{ a.org_namn }}</span></span>
+      <span class="inkop-belopp">{{ a.slutdatum }}{% if a.varde %} · {{ "{:,.0f}".format(a.varde / 1000000).replace(",", " ") }} mnkr{% endif %}</span>
+    </div>
+    {% else %}<p class="liten">Inga kommande utgångar{% if valda.get('fq') or valda.get('fbransch') %} med valt filter{% endif %}.</p>{% endfor %}
+  </details>
+  <details class="utfall">
+    <summary>Övriga kontrakt ({{ antal_ovriga }}{% if antal_ovriga > ovriga|length %}, senaste {{ ovriga|length }} visas{% endif %})</summary>
+    {% for a in ovriga %}
+    <div class="inkop-rad">
+      <span class="inkop-namn">{{ a.titel }} <span class="liten">· {{ a.org_namn }}</span></span>
+      <span class="inkop-belopp">{% if a.slutdatum %}t.o.m. {{ a.slutdatum }}{% endif %}{% if a.varde %} · {{ "{:,.0f}".format(a.varde / 1000000).replace(",", " ") }} mnkr{% endif %}</span>
+    </div>
+    {% else %}<p class="liten">Inga övriga kontrakt{% if valda.get('fq') or valda.get('fbransch') %} med valt filter{% endif %}.</p>{% endfor %}
+  </details>
+  {% if lev.ramavtal %}
+  <details class="utfall">
+    <summary>Ramavtalsplatser ({{ lev.ramavtal|length }})</summary>
+    {% for kalla, titel in lev.ramavtal %}
+    <div class="inkop-rad"><span class="inkop-namn">{{ titel }}</span><span class="inkop-belopp">{{ kalla|kallnamn }}</span></div>
+    {% endfor %}
+  </details>
+  {% endif %}
+  <p><a class="rapportlank" href="{{ url_for('leverantorer.rapport', slug=lev.slug) }}">⤓ Ladda ner leverantörsprofil (Word)</a></p>
+  <p class="liten">Underlag: tilldelningsbeslut (TED m.fl.) och
+  inköpscentralernas kataloger i Consens databas. Ramavtal med flera
+  leverantörer räknas som en plats per leverantör; kontraktsvärden är
+  totalvärden, ofta fleråriga.</p>
+</main>
+{% endblock %}

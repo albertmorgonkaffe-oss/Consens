@@ -1,0 +1,50 @@
+{% extends "publik_bas.html" %}
+{% from "bas.html" import yrkespanel %}
+{% block titel %}Sök upphandlingar och avtalsutgångar | Consens{% endblock %}
+{% block meta %}<meta name="robots" content="noindex,follow">{% endblock %}
+{% block innehall %}
+<section class="sidhuvud">
+  <h1>Sök upphandlingar och avtalsutgångar</h1>
+  <p><b>{{ signaler|length }} träffar</b></p>
+</section>
+
+<form class="filterrad" method="get" aria-label="Filter">
+  <div class="sokfalt">
+    <input type="search" name="q" value="{{ q }}" placeholder="Sök upphandlingar, avtal eller organisationer…" aria-label="Sökord">
+  </div>
+  <details class="multiselect">
+    <summary class="ms-toggle">Bransch <span class="pil">▾</span></summary>
+    <div class="ms-panel"><div class="lista">
+      {% for b in branscher %}
+      <label><input type="checkbox" name="bransch" value="{{ b }}" {% if b in valda %}checked{% endif %}> {{ b }}</label>
+      {% endfor %}
+    </div></div>
+  </details>
+  {{ yrkespanel(yrkeskategorier, valda_yrken) }}
+  <span class="ms-toggle filter-last" title="Kräver konto">Kontotyp 🔒</span>
+  <span class="ms-toggle filter-last" title="Kräver konto">Län 🔒</span>
+  <span class="ms-toggle filter-last" title="Kräver konto">Leverantör 🔒</span>
+  <span class="ms-toggle filter-last" title="Kräver konto">Tid till utgång 🔒</span>
+  <button class="tillampa-rad" type="submit">Sök</button>
+</form>
+
+<main class="flode">
+  {% for s in signaler %}
+  <article class="signal-card">
+    <div class="metadata">
+      {% if s.typ == 'avtalsutgang' %}<span class="tagg tagg-utgang">Avtalsutgång</span>
+      {% elif s.typ == 'planerad' %}<span class="tagg tagg-planerad">Planerad upphandling</span>
+      {% else %}<span class="tagg tagg-upphandling">Upphandling</span>{% endif %}
+      {% if s.lan %}<span class="chip">{{ s.lan }}</span>{% endif %}
+    </div>
+    <h2><a href="{{ s.url }}">{{ s.titel }}</a></h2>
+    <p class="sammanfattning">{{ s.org_namn }}</p>
+  </article>
+  {% else %}
+  <p class="tomt">Inga träffar. Prova ett bredare sökord.</p>
+  {% endfor %}
+  <p class="liten">Fler filter, exakta slutdatum, leverantörer och avtalsvärden kräver konto.
+  <a href="{{ url_for('auth.logga_in') }}">Logga in</a> eller
+  <a href="mailto:hej@consens.se?subject=Konto%20p%C3%A5%20Consens">boka demo</a>.</p>
+</main>
+{% endblock %}

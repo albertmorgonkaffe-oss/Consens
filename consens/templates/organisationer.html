@@ -1,0 +1,102 @@
+{% extends "bas.html" %}
+{% block titel %}Consens — Organisationer{% if sokt and antal_sidor > 1 %}
+<nav class="paginering">
+  {% if sida > 1 %}<a href="?{{ bas_qs }}&amp;sida={{ sida - 1 }}">← Föregående</a>{% endif %}
+  <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+  {% if sida < antal_sidor %}<a href="?{{ bas_qs }}&amp;sida={{ sida + 1 }}">Nästa →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}
+{% block innehall %}
+
+<section class="sidhuvud sidhuvud-rad">
+  <div><h1>Organisationer</h1>
+  <p class="ingress-sida">Sveriges kommuner, regioner, myndigheter och
+  offentliga bolag, med deras aktuella upphandlingar, aktiva avtal,
+  planerade upphandlingar och öppna inköpsdata samlade per organisation.</p></div>
+  {% if sokt %}<p><b>{{ "{:,}".format(totalt).replace(",", " ") }} organisationer</b>{% if antal_sidor > 1 %} · sida {{ sida }} av {{ antal_sidor }}{% endif %}</p>{% endif %}
+</section>
+
+<form class="filterrad" method="get" aria-label="Filter">
+  <input type="hidden" name="sok" value="1">
+  <div class="sokfalt">
+    <input type="search" name="q" value="{{ valda.get('q','') }}"
+           placeholder="Sök organisation eller orgnr…" aria-label="Sök organisation">
+  </div>
+  <details class="multiselect">
+    <summary class="ms-toggle">Organisationstyp <span class="pil">▾</span></summary>
+    <div class="ms-panel">
+      {% for varde, namn in kontotyper.items() %}
+      <label><input type="checkbox" name="kontotyp" value="{{ varde }}"
+        {% if varde in valda.getlist('kontotyp') %}checked{% endif %}> {{ namn }}</label>
+      {% endfor %}
+    </div>
+  </details>
+  <details class="multiselect">
+    <summary class="ms-toggle">Län <span class="pil">▾</span></summary>
+    <div class="ms-panel"><div class="lista">
+      {% for l in alla_lan %}
+      <label><input type="checkbox" name="lan" value="{{ l }}"
+        {% if l in valda.getlist('lan') %}checked{% endif %}> {{ l }}</label>
+      {% endfor %}
+    </div></div>
+  </details>
+  <label class="endast-filter"><select name="endast">
+    <option value="">Alla organisationer</option>
+    <option value="upphandlingar" {% if valda.get('endast') == 'upphandlingar' %}selected{% endif %}>Med aktuella upphandlingar</option>
+    <option value="utgangar" {% if valda.get('endast') == 'utgangar' %}selected{% endif %}>Med aktiva avtal</option>
+    <option value="nagot" {% if valda.get('endast') == 'nagot' %}selected{% endif %}>Med upphandlingar eller avtal</option>
+    <option value="planerade" {% if valda.get('endast') == 'planerade' %}selected{% endif %}>Med planerade upphandlingar</option>
+    <option value="inkop" {% if valda.get('endast') == 'inkop' %}selected{% endif %}>Med öppna inköpsdata</option>
+  </select></label>
+  <label class="endast-filter"><select name="invanare">
+    <option value="">Alla storlekar</option>
+    {% for v, n in [(10000, 'Minst 10 000 inv.'), (50000, 'Minst 50 000 inv.'), (100000, 'Minst 100 000 inv.')] %}
+    <option value="{{ v }}" {% if valda.get('invanare') == v|string %}selected{% endif %}>{{ n }}</option>
+    {% endfor %}
+  </select></label>
+  <button class="tillampa-rad" type="submit">Tillämpa</button>
+  {% if sokt and totalt %}
+  <span class="sortera-valj">
+    <a class="las-mer" href="{{ url_for('flode.organisationer_pdf') }}?{{ bas_qs }}">Exportera PDF</a>
+    <label>Sortera
+    <select name="sortera" onchange="const u=new URL(location);u.searchParams.set('sortera',this.value);u.searchParams.delete('sida');location.assign(u.toString())">
+      {% for v, n in [('namn','Namn A–Ö'), ('upphandlingar','Flest upphandlingar'), ('utgangar','Flest avtalsutgångar'), ('invanare','Flest invånare')] %}
+      <option value="{{ v }}" {% if valda.get('sortera', 'namn') == v %}selected{% endif %}>{{ n }}</option>
+      {% endfor %}
+    </select></label>
+  </span>
+  {% endif %}
+
+</form>
+
+<main class="register">
+  {% if not sokt %}
+  <p class="tomt org-prompt">Välj filter, eller inga alls, och tryck
+  <b>Tillämpa</b> för att visa organisationer.</p>
+  {% elif not organisationer %}
+  <p class="tomt">Inga organisationer matchade filtren.</p>
+  {% endif %}
+  {% for o in organisationer %}
+  <a class="org-rad" href="{% if o.orgnr %}{{ url_for('flode.organisation', orgnr=o.orgnr) }}{% else %}{{ url_for('flode.organisation_id', oid=o.id) }}{% endif %}">
+    <span class="org-namn">{{ o.namn }}<span class="orgnr">{{ o.orgnr or 'orgnr saknas' }}</span></span>
+    <span class="kontotyp kt-{{ o.kontotyp }}">{{ kontotyper[o.kontotyp] }}</span>
+    <span class="org-lan">{{ o.lan or '—' }}</span>
+    <span class="org-siffror">
+      <b>{{ o.ute }}</b> aktuella upphandlingar
+      {% if o.utgangar %} · <span class="varning">{{ o.utgangar }} aktiva avtal</span>{% endif %}
+      {% if o.planerade %} · {{ o.planerade }} planerade{% endif %}
+      {% if o.invanare %} · {{ "{:,.0f}".format(o.invanare).replace(",", " ") }} inv.{% endif %}
+    </span>
+  </a>
+  {% endfor %}
+</main>
+
+{% if sokt and antal_sidor > 1 %}
+<nav class="paginering">
+  {% if sida > 1 %}<a href="?{{ bas_qs }}&amp;sida={{ sida - 1 }}">← Föregående</a>{% endif %}
+  <span>Sida {{ sida }} av {{ antal_sidor }}</span>
+  {% if sida < antal_sidor %}<a href="?{{ bas_qs }}&amp;sida={{ sida + 1 }}">Nästa →</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

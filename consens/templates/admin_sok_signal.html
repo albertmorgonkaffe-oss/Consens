@@ -1,0 +1,47 @@
+{% extends "admin_bas.html" %}
+{% from "bas.html" import vardetext %}
+{% block titel %}Consens — Admin · Sök signal{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <h1>Signalhistorik</h1>
+  <p class="sektion-ingress">Sök på referensnummer för att se hela kedjan bakom en signal. Användbart vid kundfelanmälningar.</p>
+  <form method="get" class="spara-form" style="padding:0;margin:1rem 0">
+    <input type="text" name="ref" value="{{ ref }}" placeholder="t.ex. C-000123">
+    <button class="knapp-primar liten-knapp" type="submit">Sök</button>
+  </form>
+
+  {% if fel %}
+  <div class="panel sokfel"><p>{{ fel }}</p>
+  <p class="info">Kontrollera stavningen. Formatet är C-xxxxxx.</p></div>
+  {% endif %}
+
+  {% if resultat %}
+  {% set s = resultat.signal %}
+  <div class="panel">
+    <div class="metadata">
+      <span class="tagg {% if s.typ == 'avtalsutgang' %}tagg-utgang{% else %}tagg-upphandling{% endif %}">
+        {% if s.typ == 'avtalsutgang' %}Avtalsutgång{% else %}Upphandling{% endif %}</span>
+      <span class="kalla">C-{{ '%06d' % s.id }}</span>
+    </div>
+    <h2 style="margin-top:0.4rem">{{ s.titel }}</h2>
+    <dl class="teaser-fakta">
+      <dt>Organisation</dt><dd>{{ s.org_namn }} {% if s.orgnr %}({{ s.orgnr }}){% endif %}</dd>
+      <dt>Källa</dt><dd>{{ s.kalla }}</dd>
+      <dt>Extern referens</dt><dd>{{ s.extern_id }}</dd>
+      <dt>Upptäckt</dt><dd>{{ s.upptackt }}</dd>
+      {% if resultat.korning %}
+      <dt>Körning</dt><dd>#{{ resultat.korning.id }} · {{ resultat.korning.kalla }}
+        · startad {{ resultat.korning.startad }} · {{ resultat.korning.status }}
+        · {{ resultat.korning.antal_nya }} nya / {{ resultat.korning.antal_dubbletter }} dubbletter</dd>
+      {% else %}<dt>Körning</dt><dd>okänd (importerad före spårning)</dd>{% endif %}
+      <dt>Värde</dt><dd>{{ vardetext(s.varde, s.varde_sort) }}</dd>
+      {% if s.cpv %}<dt>CPV</dt><dd>{{ s.cpv }}</dd>{% endif %}
+      <dt>Tjänstetaggar</dt><dd>{{ resultat.yrken|join(', ') or 'inga' }}</dd>
+      {% if s.deadline %}<dt>Deadline/slutdatum</dt><dd>{{ s.deadline }}</dd>{% endif %}
+      {% if resultat.avtal %}<dt>Kopplat avtal</dt><dd>{{ resultat.avtal.titel }} ({{ resultat.avtal.extern_id }})</dd>{% endif %}
+      <dt>Engagemang</dt><dd>{{ resultat.klick }} klick · sparad av {{ resultat.sparad_av }} · i {{ resultat.i_listor }} listor</dd>
+    </dl>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}

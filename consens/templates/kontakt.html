@@ -1,0 +1,23 @@
+{% extends "bas.html" %}
+{% block titel %}Kontakt · Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida installningar">
+  <h1>Kontakt</h1>
+  {% if skickat %}
+  <p class="info-ruta">Tack! Ditt meddelande är skickat. Vi återkommer så
+  snart vi kan, oftast samma dag.</p>
+  {% endif %}
+  <section class="inst-block">
+    <h2>Skriv till oss</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Ämne<input type="text" name="amne" placeholder="Vad gäller det?"></label>
+      <label>Meddelande<textarea name="meddelande" rows="6" required
+        placeholder="Frågor, önskemål om nya källor, fakturering - allt är välkommet."></textarea></label>
+      <button class="knapp-primar" type="submit">Skicka</button>
+    </form>
+    <p class="liten" style="margin-top:0.9rem">Eller mejla oss direkt på
+    <a href="mailto:info@consens.se">info@consens.se</a> - vi svarar oftast
+    inom några timmar på vardagar.</p>
+  </section>
+</main>
+{% endblock %}

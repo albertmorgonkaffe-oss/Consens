@@ -1,0 +1,83 @@
+{% extends "publik_bas.html" %}
+{% block titel %}{{ sida.rubrik }} · Consens{% endblock %}
+{% block innehall %}
+<main class="sida smal">
+  <p class="liten"><a href="{{ url_for('publikt.start') }}#vadvibevakar">← Vad vi bevakar</a></p>
+  <h1>{{ sida.rubrik }}</h1>
+  <p class="ingress-sida">{{ sida.ingress|safe }}</p>
+
+  <ul class="punktlista">
+    {% for p in sida.punkter %}<li>{{ p }}</li>{% endfor %}
+  </ul>
+
+  <div class="ram">
+    <div class="ram-topp"><span class="prick"></span><span class="prick"></span><span class="prick"></span>
+      <span class="ram-adress">consens.se/{{ 'flode' if sida.vy in ('flode',) else ('avtal' if sida.vy == 'avtal' else ('leverantorer' if sida.vy == 'leverantor' else ('insikter' if sida.vy == 'insikter' else 'organisationer'))) }}</span></div>
+    <div class="ram-yta">
+      {% if sida.vy == 'flode' %}
+      <div class="m-kort">
+        <div class="m-rad1"><span class="tagg {{ sida.tagg }}">{{ sida.tagg_text }}</span>
+          <span class="m-kalla">{{ sida.kalla }}</span><span class="m-datum">i dag</span></div>
+        <h3>{{ sida.titel }}</h3>
+        <p>{{ sida.text|safe }}</p>
+        {% if sida.matare %}<div class="m-matare"><div class="m-fyll"></div></div>{% endif %}
+        <div class="chips">{% for c in sida.chips %}<span class="chip">{{ c }}</span>{% endfor %}</div>
+      </div>
+      {% elif sida.vy == 'avtal' %}
+      <div class="m-tabell">
+        <div class="m-trad m-thuvud"><span>Avtal</span><span>Leverantör</span><span>Värde</span><span>Anbud</span><span>Utgång</span></div>
+        <div class="m-trad"><span>Ramavtal markentreprenader</span><span>Skanska Sverige AB</span><span>84,0 mnkr</span><span>3</span><span>2027-02-15</span></div>
+        <div class="m-trad"><span>Vinterväghållning distrikt 2</span><span>Svevia AB</span><span>31,5 mnkr</span><span>2</span><span>2026-11-30</span></div>
+        <div class="m-trad"><span>Bemanning inom vård och omsorg</span><span>Dedicare Nurse AB, Agito AB</span><span>120,0 mnkr</span><span>6</span><span>2028-04-30</span></div>
+      </div>
+      {% elif sida.vy == 'leverantor' %}
+      <h3 class="m-rubrik">Skanska Sverige AB <span class="m-orgnr">556033-9086</span></h3>
+      <div class="m-stat">
+        <div><b>203</b><span>vunna kontrakt</span></div>
+        <div><b>69 607</b><span>mnkr</span></div>
+        <div><b>109</b><span>kunder</span></div>
+        <div><b>3</b><span>ramavtalsplatser</span></div>
+      </div>
+      <p class="m-underrubrik">Avtal som löper ut</p>
+      <div class="m-lista">
+        <div><span>Ombyggnad Vasagatan etapp 2</span><span>2026-11-30</span></div>
+        <div><span>Ramavtal markentreprenader</span><span>2027-02-15</span></div>
+        <div><span>Nybyggnad förskola Tallbacken</span><span>2027-06-30</span></div>
+      </div>
+      {% elif sida.vy == 'insikter' %}
+      <h3 class="m-rubrik">Avfall och återvinning <span class="lage lage-lag">Låg konkurrens</span></h3>
+      <div class="m-stat">
+        <div><b>1,7</b><span>anbud i snitt</span></div>
+        <div><b>41 %</b><span>ett enda anbud</span></div>
+        <div><b>38 %</b><span>hos topp 5</span></div>
+        <div><b>96</b><span>avtal ut inom 18 mån</span></div>
+      </div>
+      <p class="m-underrubrik">Största leverantörerna</p>
+      <div class="m-lista">
+        <div><span>Ragn-Sells Recycling AB</span><span>12 %</span></div>
+        <div><span>Stena Recycling AB</span><span>9 %</span></div>
+        <div><span>Remondis Sverige AB</span><span>8 %</span></div>
+      </div>
+      {% else %}
+      <h3 class="m-rubrik">Södertälje kommun <span class="m-orgnr">212000-0159</span></h3>
+      <p class="m-underrubrik">Störst fakturerat 2025, enligt öppna inköpsdata</p>
+      <div class="m-lista">
+        <div><span>Peab Sverige AB</span><span>68,4 mnkr</span></div>
+        <div><span>Telia Sverige AB</span><span>24,1 mnkr</span></div>
+        <div><span>Martin &amp; Servera Restauranghandel AB</span><span>19,7 mnkr</span></div>
+        <div><span>Samhall Aktiebolag</span><span>11,2 mnkr</span></div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="cta-rad" style="margin-top:1.6rem">
+    <a class="knapp-primar" href="{{ url_for('publikt.testa') }}">Testa gratis i 14 dagar</a>
+    <a class="knapp-sekundar-lank" href="{{ url_for('publikt.sok') }}">Sök upphandlingar</a>
+  </div>
+
+  <p class="liten" style="margin-top:2rem">Läs om annat vi bevakar:
+    {% for s2, namn in ovriga %}<a href="{{ url_for('publikt.bevakar', slug=s2) }}">{{ namn }}</a>{% if not loop.last %} · {% endif %}{% endfor %}
+  </p>
+</main>
+{% endblock %}

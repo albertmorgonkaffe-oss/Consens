@@ -1,0 +1,63 @@
+{% extends "bas.html" %}
+{% block titel %}{{ a.epost }} · Admin · Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida installningar">
+  <p class="liten"><a href="{{ url_for('admin.anvandare') }}">← Alla användare</a></p>
+  <h1>{{ a.namn or a.epost }}</h1>
+
+  <section class="inst-block">
+    <h2>Konto</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="spara">
+      <label>Namn<input type="text" name="namn" value="{{ a.namn or '' }}"></label>
+      <label>Företag<input type="text" name="foretag" value="{{ a.foretag or '' }}"></label>
+      <label>E-post<input type="email" name="epost" value="{{ a.epost }}" required></label>
+      <label>Behörighetsnivå
+        <select name="roll">
+          {% for v, namn in roller.items() %}
+          <option value="{{ v }}" {% if a.roll == v %}selected{% endif %}>{{ namn }}</option>
+          {% endfor %}
+        </select></label>
+      <label>Giltig till (lämna tomt för tills vidare)
+        <input type="date" name="giltig_till" value="{{ a.giltig_till or '' }}"></label>
+      <button class="knapp-primar" type="submit">Spara</button>
+    </form>
+  </section>
+
+  <section class="inst-block farozon">
+    <h2>Radera kontot</h2>
+    <p class="liten">Tar bort användaren permanent, inklusive bevakningar
+    och sparade listor. Går inte att ångra.</p>
+    <form method="post"
+          onsubmit="return confirm('Radera {{ a.epost }} permanent? Detta går inte att ångra.')"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="radera">
+      <button class="knapp-sekundar knapp-fara" type="submit">Radera användaren</button>
+    </form>
+  </section>
+
+  <section class="inst-block">
+    <h2>Lösenord</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="aterstall">
+      <button class="knapp-sekundar" type="submit">Skicka återställningslänk</button>
+    </form>
+  </section>
+
+  <section class="inst-block">
+    <h2>Bevakningar <span class="antal-h">{{ bevakningar|length }} st</span></h2>
+    {% if bevakningar %}<ul class="ren-lista">
+      {% for b in bevakningar %}<li><b>{{ b.namn }}</b> <span class="liten">{{ b.frekvens or 'dagligen' }}</span></li>{% endfor %}
+    </ul>{% else %}<p class="liten">Inga bevakningar ännu.</p>{% endif %}
+  </section>
+
+  <section class="inst-block">
+    <h2>Senaste utskick</h2>
+    {% if utskick %}<table class="admin-tabell">
+      <tr><th>När</th><th>Typ</th><th>Ämne</th></tr>
+      {% for u in utskick %}
+      <tr><td>{{ u.skickad[:16] }}</td><td>{{ u.typ }}</td><td>{{ u.amne or '' }}</td></tr>
+      {% endfor %}
+    </table>{% else %}<p class="liten">Inga loggade utskick ännu (loggen började föras nu).</p>{% endif %}
+  </section>
+</main>
+{% endblock %}

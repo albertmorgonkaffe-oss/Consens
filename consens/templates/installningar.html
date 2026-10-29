@@ -1,0 +1,94 @@
+{% extends "bas.html" %}
+{% block titel %}Inställningar · Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida installningar">
+  <h1>Inställningar</h1>
+  {% if meddelande %}<p class="info-ruta">{{ meddelande }}</p>{% endif %}
+  {% if fel %}<p class="fel-ruta">{{ fel }}</p>{% endif %}
+
+  <section class="inst-block">
+    <h2>Ditt konto</h2>
+    <dl class="inst-dl">
+      <dt>Behörighetsnivå</dt><dd>{{ rollnamn }}</dd>
+      {% if a.giltig_till %}<dt>Tillgång till och med</dt><dd>{{ a.giltig_till }}</dd>{% endif %}
+      <dt>E-post</dt><dd>{{ a.epost }}</dd>
+    </dl>
+  </section>
+
+  <section class="inst-block">
+    <h2>Betalning</h2>
+    {% if a.stripe_kund %}
+    <p class="liten">Prenumerationen hanteras av Stripe. I kundportalen
+    byter du kort, hämtar kvitton och säger upp.</p>
+    <form method="post" action="{{ url_for('betalning.portal') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="knapp-sekundar" type="submit">Öppna kundportalen</button>
+    </form>
+    {% elif a.roll in ('trial', 'kompis') %}
+    <p class="liten">Uppgradera till full tillgång: 14 dagar gratis,
+    därefter 595 kr per användare och månad inklusive moms. Avsluta när
+    som helst, inga bindningstider.</p>
+    <form method="post" action="{{ url_for('betalning.checkout') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="knapp-primar" type="submit">Uppgradera kontot</button>
+    </form>
+    {% else %}
+    <p class="liten">Kontot är upplagt manuellt. Hör av dig till
+    hej@consens.se vid frågor om fakturering.</p>
+    {% endif %}
+  </section>
+
+  <section class="inst-block">
+    <h2>Utseende</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="tema">
+      <label class="vaxel-rad">
+        <span class="vaxel">
+          <input type="checkbox" name="mork_lage" value="1"
+                 {% if a.mork_lage %}checked{% endif %}
+                 onchange="this.form.submit()">
+          <span class="vaxel-spar" aria-hidden="true"></span>
+        </span>
+        <span>Mörkt läge</span>
+      </label>
+    </form>
+  </section>
+
+  <section class="inst-block">
+    <h2>Kontaktuppgifter</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="uppgifter">
+      <label>Namn<input type="text" name="namn" value="{{ a.namn or '' }}"></label>
+      <label>Företag<input type="text" name="foretag" value="{{ a.foretag or '' }}"></label>
+      <button class="knapp-sekundar" type="submit">Spara</button>
+    </form>
+  </section>
+
+  <section class="inst-block">
+    <h2>Byt e-postadress</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="epost">
+      <label>Ny e-post<input type="email" name="epost" required></label>
+      <button class="knapp-sekundar" type="submit">Byt adress</button>
+    </form>
+  </section>
+
+  <section class="inst-block">
+    <h2>Byt lösenord</h2>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="atgard" value="losenord">
+      <label>Nuvarande lösenord<input type="password" name="nuvarande" required></label>
+      <label>Nytt lösenord<input type="password" name="nytt" minlength="8" required></label>
+      <button class="knapp-sekundar" type="submit">Byt lösenord</button>
+    </form>
+    <p class="liten">Glömt det nuvarande? <a href="{{ url_for('auth.glomt_losenord') }}">Återställ via e-post</a>.</p>
+  </section>
+
+  <section class="inst-block">
+    <h2>Rundtur</h2>
+    <form method="post" action="{{ url_for('auth.tur_igen') }}"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button type="submit" class="knapp-sekundar">Visa introduktionen igen</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

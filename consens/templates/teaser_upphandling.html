@@ -1,0 +1,34 @@
+{% extends "publik_bas.html" %}
+{% from "bas.html" import vardetext %}
+{% block titel %}{{ s.titel }} — {{ s.org_namn }} | Consens{% endblock %}
+{% block meta %}<meta name="description" content="Upphandling: {{ s.titel }} hos {{ s.org_namn }}.{% if s.deadline %} Sista anbudsdag {{ s.deadline }}.{% endif %}">{% endblock %}
+{% block innehall %}
+<main class="teaser">
+  <div class="metadata">
+    <span class="tagg tagg-upphandling">Upphandling</span>
+    {% if bransch %}<span class="chip">{{ bransch }}</span>{% endif %}
+    {% if s.lan %}<span class="chip">{{ s.lan }}</span>{% endif %}
+  </div>
+  <h1>{{ s.titel }}</h1>
+  <p class="teaser-org">{{ s.org_namn }} · {{ s.orgnr }}</p>
+
+  <dl class="teaser-fakta">
+    {% if s.sammanfattning %}<dt>Beskrivning</dt><dd>{{ s.sammanfattning }}</dd>{% endif %}
+    <dt>Uppskattat värde</dt><dd>{{ vardetext(s.varde, s.varde_sort) }}</dd>
+    {% if s.deadline %}<dt>Sista anbudsdag</dt><dd><b>{{ s.deadline }}</b></dd>{% endif %}
+    {% if s.cpv %}<dt>CPV</dt><dd>{{ s.cpv }}</dd>{% endif %}
+    <dt>Källa</dt><dd>{{ s.kalla }}</dd>
+  </dl>
+
+  <div class="teaser-cta">
+    <h2>Bevaka upphandlingar som denna</h2>
+    <p>Med ett konto får du en daglig digest med nya upphandlingar och
+    avtalsutgångar inom dina branscher, och ser vilka avtal hos
+    {{ s.org_namn }} som löper ut härnäst.</p>
+    <div class="cta-rad">
+      <a class="knapp-primar" href="mailto:hej@consens.se?subject=Konto%20p%C3%A5%20Consens">Boka demo</a>
+      <a class="knapp-sekundar" href="{{ url_for('auth.logga_in', nasta=request.path) }}">Logga in</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

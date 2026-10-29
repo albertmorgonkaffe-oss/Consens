@@ -1,0 +1,18 @@
+{% extends "bas.html" %}
+{% block titel %}Betalning registrerad · Consens{% endblock %}
+{% block innehall %}
+<main class="smal-sida">
+  <h1>Tack!</h1>
+  <p>Din prenumeration är registrerad. De första 14 dagarna är gratis,
+  därefter dras 595 kr per månad. Avsluta när som helst.</p>
+  {% if inloggad %}
+  <p>Kontot uppgraderas inom någon minut när Stripes bekräftelse kommit
+  fram. Kvitton, kortbyte och uppsägning hittar du under
+  <a href="{{ url_for('auth.installningar') }}">Inställningar</a>.</p>
+  {% else %}
+  <p>Ett mejl med en länk för att välja lösenord är på väg till adressen
+  du angav vid betalningen. Kolla skräpposten om det dröjer. Sedan loggar
+  du in på <a href="{{ url_for('auth.logga_in') }}">inloggningssidan</a>.</p>
+  {% endif %}
+</main>
+{% endblock %}

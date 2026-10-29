@@ -1,0 +1,23 @@
+{% extends "publik_bas.html" %}
+{% block titel %}Testa gratis i 14 dagar | Consens{% endblock %}
+{% block innehall %}
+<main class="inloggning" style="max-width:460px">
+  <h1>Testa gratis i 14 dagar</h1>
+  {% if skickad %}
+  <p class="lyckat">Tack! Vi hör av oss inom kort och sätter upp kontot samma dag.</p>
+  {% else %}
+  <p class="sektion-ingress">Fyll i uppgifterna så sätter vi upp kontot samma dag. Provperioden är 14 dagar, kostnadsfri och utan kortuppgifter.</p>
+  <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="namn">Namn</label>
+    <input type="text" id="namn" name="namn" required>
+    <label for="epost">E-post</label>
+    <input type="email" id="epost" name="epost" required>
+    <label for="foretag">Företag</label>
+    <input type="text" id="foretag" name="foretag">
+    <label for="meddelande">Vad vill ni bevaka? (valfritt)</label>
+    <textarea id="meddelande" name="meddelande" rows="4"></textarea>
+    <button class="knapp-primar" type="submit">Skicka ansökan</button>
+  </form>
+  {% endif %}
+</main>
+{% endblock %}

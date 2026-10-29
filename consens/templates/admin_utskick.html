@@ -1,0 +1,88 @@
+{% extends "admin_bas.html" %}
+{% block titel %}Consens — Admin · Utskick{% endblock %}
+{% block admininnehall %}
+<main class="sida">
+  <h1>Nytt utskick</h1>
+  <p class="sektion-ingress">Skriv, välj mottagare, förhandsgranska. Signaturen läggs till automatiskt.</p>
+  {% if skickat %}<p class="lyckat">Utskicket gick till {{ skickat }} mottagare.</p>{% endif %}
+
+  <form method="post" class="utskick-form"><input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <fieldset class="panel">
+      <legend>Mottagare</legend>
+      <p class="falt-rubrik">Typ av utskick</p>
+      <label class="radio"><input type="radio" name="typ" value="marknadsforing"
+        {% if form.get('typ', 'marknadsforing') == 'marknadsforing' %}checked{% endif %}>
+        Marknadsföring <span class="info">— går bara till dem som samtyckt</span></label>
+      <label class="radio"><input type="radio" name="typ" value="driftmeddelande"
+        {% if form.get('typ') == 'driftmeddelande' %}checked{% endif %}>
+        Driftmeddelande <span class="info">— går till alla, rör tjänsten</span></label>
+
+      <div class="mottagarkolumner">
+        <div>
+          <p class="falt-rubrik">Kundkategori</p>
+          {% for varde, namn in roller.items() %}{% if varde != 'admin' %}
+          <label><input type="checkbox" name="kategori" value="{{ varde }}"
+            {% if varde in form.getlist('kategori') %}checked{% endif %}> {{ namn }}</label>
+          {% endif %}{% endfor %}
+          <p class="info">Inget val = alla kategorier</p>
+        </div>
+        <div>
+          <p class="falt-rubrik">Har sparat filter med signaltyp</p>
+          {% for varde, namn in signaltyper.items() %}
+          <label><input type="checkbox" name="signaltyp" value="{{ varde }}"
+            {% if varde in form.getlist('signaltyp') %}checked{% endif %}> {{ namn }}</label>
+          {% endfor %}
+        </div>
+        <div class="lista">
+          <p class="falt-rubrik">Har sparat filter med bransch</p>
+          {% for b in branscher %}
+          <label><input type="checkbox" name="bransch" value="{{ b }}"
+            {% if b in form.getlist('bransch') %}checked{% endif %}> {{ b }}</label>
+          {% endfor %}
+        </div>
+      </div>
+      {% if forhandsgranskning %}
+      <p><b>{{ mottagare|length }} mottagare</b>
+      {% if form.get('typ','marknadsforing') == 'marknadsforing' %}<span class="info"> · samtycke till marknadsföring</span>{% endif %}</p>
+      {% endif %}
+    </fieldset>
+
+    <fieldset class="panel">
+      <div class="epostfalt"><span class="etikett-v">Från</span><span>Consens &lt;info@consens.se&gt;</span></div>
+      <div class="epostfalt"><span class="etikett-v">Till</span>
+        <span>{% if forhandsgranskning %}{% if mottagare %}{{ mottagare|length }} mottagare{% else %}Inga mottagare med dessa val{% endif %}{% else %}Väljs ovan{% endif %}</span></div>
+      <div class="epostfalt"><span class="etikett-v">Ämne</span>
+        <input type="text" name="amne" value="{{ form.get('amne','') }}" placeholder="Ämnesrad" required></div>
+      <textarea name="brodtext" rows="12" placeholder="Hej,
+
+Skriv ditt meddelande här. Tomrad ger nytt stycke." required>{{ form.get('brodtext','') }}</textarea>
+      <p class="info">— Consens · consens.se <span style="float:right">Läggs till automatiskt</span></p>
+    </fieldset>
+
+    <div class="cta-rad">
+      <button class="knapp-sekundar" name="atgard" value="granska">Förhandsgranska</button>
+      <button class="knapp-primar" name="atgard" value="skicka"
+        {% if not forhandsgranskning or not mottagare %}disabled title="Förhandsgranska först"{% endif %}>Skicka</button>
+    </div>
+  </form>
+
+  {% if forhandsgranskning %}
+  <h2>Förhandsgranskning</h2>
+  <div class="panel forhandsgranskning">
+    <p><b>Ämne:</b> {{ forhandsgranskning.amne }}</p>
+    <pre>{{ forhandsgranskning.brodtext }}</pre>
+  </div>
+  {% endif %}
+
+  <h2>Tidigare utskick <span class="antal-h">{{ tidigare|length }} st</span></h2>
+  {% for u in tidigare %}
+  <div class="admin-rad">
+    <span class="tagg {% if u.typ == 'driftmeddelande' %}tagg-utgang{% else %}tagg-upphandling{% endif %}">
+      {% if u.typ == 'driftmeddelande' %}Drift{% else %}Marknadsföring{% endif %}</span>
+    <b>{{ u.amne }}</b>
+    <span>{{ u.antal_mottagare }} mottagare</span>
+    <span class="info">{{ u.skapad }} · {{ u.avsandare or '–' }}</span>
+  </div>
+  {% else %}<p class="tomt">Inga utskick ännu.</p>{% endfor %}
+</main>
+{% endblock %}
